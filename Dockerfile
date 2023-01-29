@@ -1,11 +1,18 @@
-# 1. This tells docker to use the Rust official image
-FROM rust:1.66
+FROM rust:1.66.0
 
-# 2. Copy the files in your machine to the Docker image
-COPY ./ ./
+# Create a new directory for the application
+RUN mkdir -p /usr/src/trander-rust
+WORKDIR /usr/src/trander-rust
 
-# Build your program for release
+# Copy the rest of the application code
+COPY . .
+
+# Build the application
 RUN cargo build --release
 
-# Run the binary
-CMD ["./target/release/trander-rust"]
+# Expose the port that the application will run on
+EXPOSE 8080
+
+# Start the application
+CMD ["cargo", "run", "--release"]
+
