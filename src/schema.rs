@@ -101,6 +101,22 @@ diesel::table! {
     }
 }
 
+diesel::table! {
+    users (id) {
+        id -> Unsigned<Bigint>,
+        unique_id -> Nullable<Varchar>,
+        name -> Nullable<Text>,
+        email -> Nullable<Varchar>,
+        email_verified_at -> Nullable<Timestamp>,
+        password -> Nullable<Varchar>,
+        avatar -> Nullable<Varchar>,
+        remember_token -> Nullable<Varchar>,
+        created_at -> Nullable<Timestamp>,
+        updated_at -> Nullable<Timestamp>,
+        check_registration -> Bool,
+    }
+}
+
 diesel::joinable!(m_exist_country_prefixes -> m_countries (country_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
@@ -112,4 +128,5 @@ diesel::allow_tables_to_appear_in_same_query!(
     m_ways,
     request_count_historys,
     request_limits,
+    users,
 );
