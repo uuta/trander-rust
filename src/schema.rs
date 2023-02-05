@@ -19,3 +19,19 @@ diesel::table! {
         deleted_at -> Nullable<Timestamp>,
     }
 }
+
+diesel::table! {
+    m_countries (id) {
+        id -> Unsigned<Bigint>,
+        country_code -> Varchar,
+        name -> Varchar,
+        exist_in_geo_db_cities -> Bool,
+        created_at -> Nullable<Timestamp>,
+        updated_at -> Nullable<Timestamp>,
+    }
+}
+
+diesel::allow_tables_to_appear_in_same_query!(
+    google_place_ids,
+    m_countries,
+);
