@@ -102,6 +102,19 @@ diesel::table! {
 }
 
 diesel::table! {
+    setting_historys (id) {
+        id -> Unsigned<Bigint>,
+        setting_id -> Unsigned<Bigint>,
+        min_distance -> Integer,
+        max_distance -> Integer,
+        direction_type -> Smallint,
+        created_at -> Nullable<Timestamp>,
+        updated_at -> Timestamp,
+        deleted_at -> Nullable<Timestamp>,
+    }
+}
+
+diesel::table! {
     settings (id) {
         id -> Unsigned<Bigint>,
         user_id -> Unsigned<Bigint>,
@@ -131,6 +144,7 @@ diesel::table! {
 }
 
 diesel::joinable!(m_exist_country_prefixes -> m_countries (country_id));
+diesel::joinable!(setting_historys -> settings (setting_id));
 diesel::joinable!(settings -> users (user_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
@@ -142,6 +156,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     m_ways,
     request_count_historys,
     request_limits,
+    setting_historys,
     settings,
     users,
 );
