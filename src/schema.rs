@@ -31,7 +31,20 @@ diesel::table! {
     }
 }
 
+diesel::table! {
+    m_directions (direction_id) {
+        direction_id -> Unsigned<Integer>,
+        direction_name -> Varchar,
+        min_angle -> Double,
+        max_angle -> Double,
+        created_at -> Nullable<Timestamp>,
+        updated_at -> Nullable<Timestamp>,
+        deleted_at -> Nullable<Timestamp>,
+    }
+}
+
 diesel::allow_tables_to_appear_in_same_query!(
     google_place_ids,
     m_countries,
+    m_directions,
 );
