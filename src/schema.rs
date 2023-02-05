@@ -43,8 +43,22 @@ diesel::table! {
     }
 }
 
+diesel::table! {
+    m_exist_country_prefixes (id) {
+        id -> Unsigned<Bigint>,
+        country_id -> Unsigned<Bigint>,
+        prefix -> Varchar,
+        exist -> Bool,
+        created_at -> Nullable<Timestamp>,
+        updated_at -> Nullable<Timestamp>,
+    }
+}
+
+diesel::joinable!(m_exist_country_prefixes -> m_countries (country_id));
+
 diesel::allow_tables_to_appear_in_same_query!(
     google_place_ids,
     m_countries,
     m_directions,
+    m_exist_country_prefixes,
 );
