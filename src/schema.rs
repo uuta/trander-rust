@@ -79,6 +79,17 @@ diesel::table! {
     }
 }
 
+diesel::table! {
+    request_count_historys (id) {
+        id -> Unsigned<Bigint>,
+        user_id -> Unsigned<Bigint>,
+        type_id -> Integer,
+        created_at -> Nullable<Timestamp>,
+        updated_at -> Timestamp,
+        deleted_at -> Nullable<Timestamp>,
+    }
+}
+
 diesel::joinable!(m_exist_country_prefixes -> m_countries (country_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
@@ -88,4 +99,5 @@ diesel::allow_tables_to_appear_in_same_query!(
     m_exist_country_prefixes,
     m_ratings,
     m_ways,
+    request_count_historys,
 );
