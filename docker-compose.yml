@@ -7,3 +7,21 @@ services:
     volumes:
       - ./:/usr/src/trander-rust
     command: ["cargo", "watch", "-x", "run"]
+  db:
+    image: mysql:8.0
+    volumes:
+      - db-store:/var/lib/mysql
+      - ./logs:/var/log/mysql
+      - ./my.cnf:/etc/mysql/conf.d/my.cnf
+    environment:
+      - MYSQL_DATABASE=${DB_NAME}
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASS}
+      - MYSQL_ROOT_PASSWORD=${DB_PASS}
+      - TZ=${TZ}
+    ports:
+      - "3006:3306"
+
+# Persistence data
+volumes:
+  db-store:
