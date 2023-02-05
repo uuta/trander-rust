@@ -66,6 +66,19 @@ diesel::table! {
     }
 }
 
+diesel::table! {
+    m_ways (id) {
+        id -> Unsigned<Integer>,
+        way_id -> Integer,
+        recommend_frequency -> Integer,
+        min_distance -> Integer,
+        max_distance -> Integer,
+        created_at -> Nullable<Timestamp>,
+        updated_at -> Nullable<Timestamp>,
+        deleted_at -> Nullable<Timestamp>,
+    }
+}
+
 diesel::joinable!(m_exist_country_prefixes -> m_countries (country_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
@@ -74,4 +87,5 @@ diesel::allow_tables_to_appear_in_same_query!(
     m_directions,
     m_exist_country_prefixes,
     m_ratings,
+    m_ways,
 );
