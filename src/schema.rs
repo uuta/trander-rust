@@ -102,6 +102,19 @@ diesel::table! {
 }
 
 diesel::table! {
+    settings (id) {
+        id -> Unsigned<Bigint>,
+        user_id -> Unsigned<Bigint>,
+        min_distance -> Integer,
+        max_distance -> Integer,
+        direction_type -> Smallint,
+        created_at -> Nullable<Timestamp>,
+        updated_at -> Timestamp,
+        deleted_at -> Nullable<Timestamp>,
+    }
+}
+
+diesel::table! {
     users (id) {
         id -> Unsigned<Bigint>,
         unique_id -> Nullable<Varchar>,
@@ -118,6 +131,7 @@ diesel::table! {
 }
 
 diesel::joinable!(m_exist_country_prefixes -> m_countries (country_id));
+diesel::joinable!(settings -> users (user_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     google_place_ids,
@@ -128,5 +142,6 @@ diesel::allow_tables_to_appear_in_same_query!(
     m_ways,
     request_count_historys,
     request_limits,
+    settings,
     users,
 );
