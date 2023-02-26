@@ -1,17 +1,28 @@
-use actix_web::{web, App, HttpResponse, HttpServer, Responder};
+use actix_web::web::Data;
+use actix_web::{get, web, App, HttpServer, Responder};
 
-async fn manual_hello() -> impl Responder {
-    HttpResponse::Ok().body("Hey there!")
+#[macro_use]
+extern crate diesel;
+
+mod db;
+mod model;
+mod schema;
+
+#[get("/users/{id}")]
+async fn get(db: web::Data<db::DbPool>, id: web::Path<String>) -> impl Responder {
+    // db connectionが利用可能に！
+    let _conn = db.get().unwrap();
+    format!("Hello {id}!")
 }
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    std::env::set_var("RUST_LOG", "debug");
+    // db moduleからestablish_connection関数をimport
+    let pool = db::establish_connection();
 
-    HttpServer::new(move || App::new().route("/index", web::get().to(manual_hello)))
-        // Using 127.0.0.1 or localhost here won’t work from inside docker.
-        // Ref: https://blog.logrocket.com/packaging-a-rust-web-service-using-docker/
-        .bind(("0.0.0.0", 8080))?
+    // app_dataを用いactix_webにdb poolをinject
+    HttpServer::new(move || App::new().app_data(Data::new(pool.clone())).service(get))
+        .bind(("127.0.0.1", 8080))?
         .run()
         .await
 }
