@@ -12,8 +12,14 @@ pub fn establish_connection() -> DbPool {
 
     // create db connection pool
     let manager = ConnectionManager::<MysqlConnection>::new(database_url);
-    let pool: DbPool = Pool::builder()
-        .build(manager)
-        .expect("Failed to create pool.");
-    pool
+    match Pool::builder().build(manager) {
+        Ok(pool) => {
+            println!("Successfully connected to the database.");
+            pool
+        }
+        Err(e) => {
+            eprintln!("Failed to create pool: {}", e);
+            panic!("Failed to create pool.");
+        }
+    }
 }
