@@ -28,6 +28,11 @@ impl ResponseError for MyError {
     }
 }
 
+#[get("/")]
+async fn index() -> impl Responder {
+    HttpResponse::Ok().body("Hella, World!")
+}
+
 #[get("/settings/{user_id}")]
 async fn get(db: Data<db::DbPool>, path: Path<u64>) -> Result<impl Responder, MyError> {
     use diesel::prelude::*;
@@ -52,8 +57,13 @@ async fn main() -> std::io::Result<()> {
     let pool = db::establish_connection();
 
     // app_dataを用いactix_webにdb poolをinject
-    HttpServer::new(move || App::new().app_data(Data::new(pool.clone())).service(get))
-        .bind(("127.0.0.1", 8080))?
-        .run()
-        .await
+    HttpServer::new(move || {
+        App::new()
+            .app_data(Data::new(pool.clone()))
+            .service(get)
+            .service(index)
+    })
+    .bind(("127.0.0.1", 8080))?
+    .run()
+    .await
 }

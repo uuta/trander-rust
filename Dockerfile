@@ -12,8 +12,7 @@ WORKDIR /usr/src/trander-rust
 COPY . .
 
 # Build the application
-RUN cargo install cargo-watch cargo-edit diesel_cli && cargo build --release
+RUN cargo install cargo-watch cargo-edit diesel_cli && cargo build
 
 # Expose the port that the application will run on
 EXPOSE 8080
-
