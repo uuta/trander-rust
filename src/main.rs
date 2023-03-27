@@ -51,6 +51,12 @@ async fn get(db: Data<db::DbPool>, path: Path<u64>) -> Result<impl Responder, My
     Ok(Json(result))
 }
 
+// INFO:
+// Using 127.0.0.1 or localhost here won’t work from inside docker.
+// Ref: https://blog.logrocket.com/packaging-a-rust-web-service-using-docker/
+const SERVER_IP: &str = "0.0.0.0";
+const PORT: u16 = 8080;
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     // db moduleからestablish_connection関数をimport
@@ -63,7 +69,7 @@ async fn main() -> std::io::Result<()> {
             .service(get)
             .service(index)
     })
-    .bind(("127.0.0.1", 8080))?
+    .bind((SERVER_IP, PORT))?
     .run()
     .await
 }
