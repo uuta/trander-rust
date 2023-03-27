@@ -16,7 +16,7 @@ pub struct Setting {
 }
 
 #[derive(Debug, Deserialize, Insertable)]
-#[table_name = "settings"]
+#[diesel(table_name = settings)]
 pub struct NewSetting {
     pub user_id: u64,
     pub min_distance: i32,
