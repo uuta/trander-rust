@@ -9,6 +9,7 @@ mod error;
 mod handler;
 mod model;
 mod schema;
+mod service;
 
 // INFO:
 // Using 127.0.0.1 or localhost here won’t work from inside docker.
