@@ -12,17 +12,17 @@ mod model;
 mod schema;
 
 #[derive(Debug)]
-struct MyError(String);
+struct ApiError(String);
 
-impl std::error::Error for MyError {}
+impl std::error::Error for ApiError {}
 
-impl fmt::Display for MyError {
+impl fmt::Display for ApiError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.0)
     }
 }
 
-impl ResponseError for MyError {
+impl ResponseError for ApiError {
     fn error_response(&self) -> HttpResponse {
         HttpResponse::InternalServerError().json(format!("An error occurred: {}", self.0))
     }
@@ -34,7 +34,7 @@ async fn index() -> impl Responder {
 }
 
 #[get("/settings/{user_id}")]
-async fn get(db: Data<db::DbPool>, path: Path<u64>) -> Result<impl Responder, MyError> {
+async fn get(db: Data<db::DbPool>, path: Path<u64>) -> Result<impl Responder, ApiError> {
     use diesel::prelude::*;
     use schema::settings::dsl::*;
 
@@ -44,9 +44,9 @@ async fn get(db: Data<db::DbPool>, path: Path<u64>) -> Result<impl Responder, My
         .load::<model::Setting>(
             &mut db
                 .get()
-                .map_err(|err| MyError(format!("Error getting connection: {}", err)))?,
+                .map_err(|err| ApiError(format!("Error getting connection: {}", err)))?,
         )
-        .map_err(|err| MyError(format!("Error loading settings: {}", err)))?;
+        .map_err(|err| ApiError(format!("Error loading settings: {}", err)))?;
 
     Ok(Json(result))
 }
