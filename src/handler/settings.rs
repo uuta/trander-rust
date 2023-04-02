@@ -1,5 +1,5 @@
 use crate::db;
-use crate::errors::api_errors::ApiError;
+use crate::error::api_error::ApiError;
 use crate::model;
 use crate::schema;
 use actix_web::web::{Data, Json, Path};

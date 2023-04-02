@@ -5,8 +5,8 @@ use actix_web::{App, HttpServer};
 extern crate diesel;
 
 mod db;
-mod errors;
-mod handlers;
+mod error;
+mod handler;
 mod model;
 mod schema;
 
@@ -25,8 +25,8 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .app_data(Data::new(pool.clone()))
-            .service(handlers::settings::get)
-            .service(handlers::index::index)
+            .service(handler::settings::get)
+            .service(handler::index::index)
     })
     .bind((SERVER_IP, PORT))?
     .run()
