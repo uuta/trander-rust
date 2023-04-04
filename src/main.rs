@@ -8,6 +8,7 @@ mod db;
 mod error;
 mod handler;
 mod model;
+mod repository;
 mod schema;
 mod service;
 
