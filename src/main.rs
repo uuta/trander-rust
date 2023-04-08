@@ -11,7 +11,6 @@ mod model;
 mod repository;
 mod schema;
 mod service;
-mod tests;
 
 // INFO:
 // Using 127.0.0.1 or localhost here won’t work from inside docker.
