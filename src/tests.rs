@@ -1,2 +1,2 @@
-pub mod repository_test;
-pub mod utils;
+pub mod config;
+pub mod repository;

@@ -1,10 +1,7 @@
-mod utils;
-
 #[cfg(test)]
 mod tests {
-    use crate::model::Setting;
     use crate::repository::settings;
-    use utils::get_test_db_pool;
+    use crate::tests::config::get_test_db_pool;
 
     #[actix_rt::test]
     async fn test_get() {
