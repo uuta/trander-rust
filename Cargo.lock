@@ -1390,7 +1390,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "trander-rust"
+name = "trander_rust"
 version = "0.0.1"
 dependencies = [
  "actix-rt",

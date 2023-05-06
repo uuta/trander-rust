@@ -1,17 +1,9 @@
 use actix_web::web::Data;
 use actix_web::{App, HttpServer};
+use trander_rust::db;
+use trander_rust::handler;
 
-#[macro_use]
 extern crate diesel;
-
-mod db;
-mod error;
-mod handler;
-mod model;
-mod repository;
-mod schema;
-mod service;
-mod tests;
 
 // INFO:
 // Using 127.0.0.1 or localhost here won’t work from inside docker.
