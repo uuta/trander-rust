@@ -1,8 +1,11 @@
 use diesel::mysql::MysqlConnection;
 use diesel::r2d2::{ConnectionManager, Pool};
 use std::env;
+use dotenv::dotenv;
 
 async fn get_test_db_pool() -> Pool<ConnectionManager<MysqlConnection>> {
+    dotenv().ok();
+
     let database_url = env::var("TEST_DATABASE_URL").expect("TEST_DATABASE_URL must be set");
     let manager = ConnectionManager::<MysqlConnection>::new(database_url);
     Pool::builder()
