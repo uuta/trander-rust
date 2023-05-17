@@ -22,4 +22,5 @@ pub struct NewSetting {
     pub min_distance: i32,
     pub max_distance: i32,
     pub direction_type: i16,
+    pub created_at: Option<NaiveDateTime>,
 }
