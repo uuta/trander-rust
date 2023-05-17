@@ -4,7 +4,7 @@ use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use diesel::insert_into;
 use trander_rust::repository::settings;
-use trander_rust::model::NewSetting;
+use trander_rust::model::setting::NewSetting;
 
 #[actix_rt::test]
 async fn test_get() {
