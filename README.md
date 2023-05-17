@@ -5,5 +5,5 @@
 $ ./run_migration.sh dev
 
 # For test environment
-$ ./run_migration.sh dev
+$ ./run_migration.sh test
 ```
