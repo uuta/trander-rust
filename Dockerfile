@@ -1,4 +1,9 @@
-FROM rust:1.66.0
+FROM rust:1.69.0
+
+# Install MySQL client
+RUN apt-get update && \
+    apt-get install -y default-mysql-client && \
+    rm -rf /var/lib/apt/lists/*
 
 # INFO: it makes faster cargo build
 # https://note.com/tkhm_dev/n/n439a4b4b9422

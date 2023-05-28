@@ -6,7 +6,7 @@ services:
       - "8081:8080"
     volumes:
       - ./:/usr/src/trander-rust
-    command: ["cargo", "watch", "-x", "check", "-x", "test"]
+    command: /bin/sh -c "./docker-compose.sh"
   db:
     image: mysql:8.0
     volumes:
