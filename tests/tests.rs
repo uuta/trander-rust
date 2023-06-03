@@ -1,7 +1,7 @@
 use diesel::mysql::MysqlConnection;
 use diesel::r2d2::{ConnectionManager, Pool};
-use std::env;
 use dotenv::dotenv;
+use std::env;
 
 async fn get_test_db_pool() -> Pool<ConnectionManager<MysqlConnection>> {
     dotenv().ok();
@@ -16,3 +16,4 @@ async fn get_test_db_pool() -> Pool<ConnectionManager<MysqlConnection>> {
 
 #[cfg(test)]
 mod repository;
+mod service;

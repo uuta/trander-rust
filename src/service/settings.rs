@@ -1,10 +1,11 @@
 use crate::model::setting::Setting;
-use crate::repository::settings;
+use crate::repository::settings::SettingsRepository;
 use diesel::MysqlConnection;
 
-pub fn get(
+pub fn get<R: SettingsRepository>(
+    repo: &R,
     user_id_value: u64,
     conn: &mut MysqlConnection,
 ) -> Result<Vec<Setting>, diesel::result::Error> {
-    settings::get(user_id_value, conn)
+    repo.get(user_id_value, conn)
 }
