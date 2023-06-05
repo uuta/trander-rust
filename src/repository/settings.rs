@@ -3,6 +3,7 @@ use crate::schema;
 use diesel::prelude::*;
 use diesel::MysqlConnection;
 use mockall::automock;
+use schema::settings::dsl::*;
 
 #[automock]
 pub trait SettingsRepository {
@@ -14,8 +15,6 @@ pub trait SettingsRepository {
 }
 
 pub struct RealSettingsRepository;
-
-use schema::settings::dsl::*;
 
 impl SettingsRepository for RealSettingsRepository {
     fn get(
