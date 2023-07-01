@@ -7,14 +7,14 @@ use trander_rust::model::setting::NewSetting;
 use trander_rust::model::user::NewUser;
 // Need to import SettingsRepository too
 // https://chat.openai.com/c/52b673b5-ccde-4752-b90f-cf54914a9ca0
-use trander_rust::repository::settings::{RealSettingsRepository, SettingsRepository};
+use trander_rust::repository::settings::{ImplSettingsRepository, SettingsRepository};
 use trander_rust::schema::{settings as settings_schema, users as users_schema};
 
 #[actix_rt::test]
 async fn test_get() {
     let pool = get_test_db_pool().await;
     let mut conn = pool.get().unwrap();
-    let repo = RealSettingsRepository;
+    let repo = ImplSettingsRepository;
 
     match conn.transaction::<_, Error, _>(|conn| {
         let new_user = NewUser {

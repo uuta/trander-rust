@@ -14,9 +14,9 @@ pub trait SettingsRepository {
     ) -> Result<Vec<Setting>, diesel::result::Error>;
 }
 
-pub struct RealSettingsRepository;
+pub struct ImplSettingsRepository;
 
-impl SettingsRepository for RealSettingsRepository {
+impl SettingsRepository for ImplSettingsRepository {
     fn get(
         &self,
         user_id_value: u64,

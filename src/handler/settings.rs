@@ -1,6 +1,6 @@
 use crate::db;
 use crate::error::api_error::ApiError;
-use crate::repository::settings::RealSettingsRepository;
+use crate::repository::settings::ImplSettingsRepository;
 use crate::service::settings;
 use actix_web::web::{Data, Json, Path};
 use actix_web::{get, Responder};
@@ -11,7 +11,7 @@ pub async fn get(db: Data<db::DbPool>, path: Path<u64>) -> Result<impl Responder
     let mut conn = db
         .get()
         .map_err(|err| ApiError::new(format!("Error getting connection: {}", err)))?;
-    let repo = RealSettingsRepository;
+    let repo = ImplSettingsRepository;
     let result = settings::get(&repo, user_id_value, &mut conn)
         .map_err(|err| ApiError::new(format!("Error loading settings: {}", err)))?;
     Ok(Json(result))
