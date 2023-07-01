@@ -1,13 +1,14 @@
 use super::get_test_db_pool;
 use chrono::NaiveDateTime;
 use trander_rust::repository::settings::MockSettingsRepository;
-use trander_rust::service::settings::get;
+use trander_rust::service::settings::{ImplSettingsService, SettingsService};
 
 #[actix_rt::test]
 async fn test_get_ok() {
     let mut mock_repo = MockSettingsRepository::new();
     let pool = get_test_db_pool().await;
     let mut conn = pool.get().unwrap();
+    let service = ImplSettingsService;
 
     let settings = vec![trander_rust::model::setting::Setting {
         id: 1,
@@ -27,7 +28,7 @@ async fn test_get_ok() {
     let settings_clone = settings.clone();
     mock_repo.expect_get().return_once(move |_, _| Ok(settings));
 
-    let result = get(&mock_repo, 1, &mut conn);
+    let result = service.get(&mock_repo, 1, &mut conn);
     assert!(result.is_ok());
     assert_eq!(result.unwrap(), settings_clone);
 }
@@ -37,10 +38,11 @@ async fn test_get_ok_empty() {
     let mut mock_repo = MockSettingsRepository::new();
     let pool = get_test_db_pool().await;
     let mut conn = pool.get().unwrap();
+    let service = ImplSettingsService;
 
     mock_repo.expect_get().returning(|_, _| Ok(vec![]));
 
-    let result = get(&mock_repo, 1, &mut conn);
+    let result = service.get(&mock_repo, 1, &mut conn);
     assert!(result.is_ok());
     assert!(result.unwrap().is_empty());
 }
