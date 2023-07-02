@@ -1739,6 +1739,7 @@ dependencies = [
  "chrono",
  "diesel",
  "dotenv",
+ "futures",
  "mockall",
  "rstest",
  "rust_decimal",
