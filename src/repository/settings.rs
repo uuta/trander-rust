@@ -5,6 +5,7 @@ use diesel::MysqlConnection;
 use mockall::automock;
 use schema::settings::dsl::*;
 
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub struct UpdateParams {
     pub min_distance: i32,
     pub max_distance: i32,

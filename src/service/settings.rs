@@ -1,5 +1,5 @@
 use crate::model::setting::Setting;
-use crate::repository::settings::SettingsRepository;
+use crate::repository::settings::{SettingsRepository, UpdateParams};
 use diesel::MysqlConnection;
 use mockall::automock;
 
@@ -11,6 +11,14 @@ pub trait SettingsService<R: SettingsRepository> {
         user_id_value: u64,
         conn: &mut MysqlConnection,
     ) -> Result<Vec<Setting>, diesel::result::Error>;
+
+    fn update(
+        &self,
+        repo: &R,
+        conn: &mut MysqlConnection,
+        user_id_value: u64,
+        params: UpdateParams,
+    ) -> Result<(), diesel::result::Error>;
 }
 
 pub struct ImplSettingsService;
@@ -25,5 +33,18 @@ impl<R: SettingsRepository> SettingsService<R> for ImplSettingsService {
         conn: &mut MysqlConnection,
     ) -> Result<Vec<Setting>, diesel::result::Error> {
         repo.get(user_id_value, conn)
+    }
+
+    fn update(
+        &self,
+        repo: &R,
+        conn: &mut MysqlConnection,
+        user_id_value: u64,
+        params: UpdateParams,
+    ) -> Result<(), diesel::result::Error> {
+        match repo.update(conn, user_id_value, params) {
+            Ok(_) => Ok(()),
+            Err(e) => Err(e),
+        }
     }
 }

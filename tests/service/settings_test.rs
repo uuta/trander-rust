@@ -1,6 +1,6 @@
 use super::get_test_db_pool;
 use chrono::NaiveDateTime;
-use trander_rust::repository::settings::MockSettingsRepository;
+use trander_rust::repository::settings::{MockSettingsRepository, UpdateParams};
 use trander_rust::service::settings::{ImplSettingsService, SettingsService};
 
 #[actix_rt::test]
@@ -45,4 +45,56 @@ async fn test_get_ok_empty() {
     let result = service.get(&mock_repo, 1, &mut conn);
     assert!(result.is_ok());
     assert!(result.unwrap().is_empty());
+}
+
+#[actix_rt::test]
+async fn test_update_ok() {
+    let mut mock_repo = MockSettingsRepository::new();
+    let pool = get_test_db_pool().await;
+    let mut conn = pool.get().unwrap();
+    let service = ImplSettingsService;
+    let expected_user_id = 1;
+
+    let expected_params = UpdateParams {
+        min_distance: 0,
+        max_distance: 100,
+        direction_type: 0,
+    };
+
+    mock_repo
+        .expect_update()
+        .return_once(move |_, user_id, params| {
+            assert_eq!(user_id, expected_user_id);
+            assert_eq!(params, expected_params.clone());
+            Ok(1)
+        });
+
+    let result = service.update(&mock_repo, &mut conn, expected_user_id, expected_params);
+    assert!(result.is_ok());
+}
+
+#[actix_rt::test]
+async fn test_update_err() {
+    let mut mock_repo = MockSettingsRepository::new();
+    let pool = get_test_db_pool().await;
+    let mut conn = pool.get().unwrap();
+    let service = ImplSettingsService;
+    let expected_user_id = 24;
+
+    let expected_params = UpdateParams {
+        min_distance: 0,
+        max_distance: 100,
+        direction_type: 0,
+    };
+
+    mock_repo
+        .expect_update()
+        .return_once(move |_, user_id, params| {
+            assert_eq!(user_id, expected_user_id);
+            assert_eq!(params, expected_params.clone());
+            Err(diesel::result::Error::NotFound)
+        });
+
+    let result = service.update(&mock_repo, &mut conn, expected_user_id, expected_params);
+    assert!(result.is_err());
 }
