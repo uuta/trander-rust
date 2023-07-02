@@ -5,6 +5,12 @@ use diesel::MysqlConnection;
 use mockall::automock;
 use schema::settings::dsl::*;
 
+pub struct UpdateParams {
+    pub min_distance: i32,
+    pub max_distance: i32,
+    pub direction_type: i16,
+}
+
 #[automock]
 pub trait SettingsRepository {
     fn get(
@@ -17,10 +23,8 @@ pub trait SettingsRepository {
         &self,
         conn: &mut MysqlConnection,
         user_id_value: u64,
-        min_distance_value: i32,
-        max_distance_value: i32,
-        direction_type_value: i16,
-    ) -> Result<(), diesel::result::Error>;
+        params: UpdateParams,
+    ) -> Result<usize, diesel::result::Error>;
 }
 
 pub struct ImplSettingsRepository;
@@ -40,17 +44,15 @@ impl SettingsRepository for ImplSettingsRepository {
         &self,
         conn: &mut MysqlConnection,
         user_id_value: u64,
-        min_distance_value: i32,
-        max_distance_value: i32,
-        direction_type_value: i16,
-    ) -> Result<(), diesel::result::Error> {
-        diesel::update(settings.filter(user_id.eq(user_id_value)))
+        params: UpdateParams,
+    ) -> Result<usize, diesel::result::Error> {
+        let count = diesel::update(settings.filter(user_id.eq(user_id_value)))
             .set((
-                min_distance.eq(min_distance_value),
-                max_distance.eq(max_distance_value),
-                direction_type.eq(direction_type_value),
+                min_distance.eq(params.min_distance),
+                max_distance.eq(params.max_distance),
+                direction_type.eq(params.direction_type),
             ))
-            .execute(conn)
-            .map(|_| ())
+            .execute(conn)?;
+        Ok(count)
     }
 }
