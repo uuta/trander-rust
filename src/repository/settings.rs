@@ -1,16 +1,10 @@
+use crate::from_request::settings::UpdateParams;
 use crate::model::setting::Setting;
 use crate::schema;
 use diesel::prelude::*;
 use diesel::MysqlConnection;
 use mockall::automock;
 use schema::settings::dsl::*;
-
-#[derive(Debug, PartialEq, Clone, Copy)]
-pub struct UpdateParams {
-    pub min_distance: i32,
-    pub max_distance: i32,
-    pub direction_type: i16,
-}
 
 #[automock]
 pub trait SettingsRepository {

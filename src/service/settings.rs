@@ -1,5 +1,6 @@
+use crate::from_request::settings::UpdateParams;
 use crate::model::setting::Setting;
-use crate::repository::settings::{SettingsRepository, UpdateParams};
+use crate::repository::settings::SettingsRepository;
 use diesel::MysqlConnection;
 use mockall::automock;
 

@@ -1,6 +1,7 @@
 use super::get_test_db_pool;
 use chrono::NaiveDateTime;
-use trander_rust::repository::settings::{MockSettingsRepository, UpdateParams};
+use trander_rust::from_request::settings::UpdateParams;
+use trander_rust::repository::settings::MockSettingsRepository;
 use trander_rust::service::settings::{ImplSettingsService, SettingsService};
 
 #[actix_rt::test]

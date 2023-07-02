@@ -7,9 +7,8 @@ use trander_rust::model::setting::NewSetting;
 use trander_rust::model::user::NewUser;
 // Need to import SettingsRepository too
 // https://chat.openai.com/c/52b673b5-ccde-4752-b90f-cf54914a9ca0
-use trander_rust::repository::settings::{
-    ImplSettingsRepository, SettingsRepository, UpdateParams,
-};
+use trander_rust::from_request::settings::UpdateParams;
+use trander_rust::repository::settings::{ImplSettingsRepository, SettingsRepository};
 use trander_rust::schema::{settings as settings_schema, users as users_schema};
 
 #[actix_rt::test]
