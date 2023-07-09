@@ -5,31 +5,30 @@ use std::fmt;
 #[derive(Debug)]
 pub struct HttpError {
     name: &'static str,
+    message: String,
 }
 
 impl HttpError {
-    pub fn new(name: &'static str) -> Self {
-        HttpError { name }
+    pub fn new(name: &'static str, message: String) -> Self {
+        HttpError { name, message }
     }
 }
 
 impl fmt::Display for HttpError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.name)
+        write!(f, "{} {}", self.name, self.message)
     }
 }
 
 impl ResponseError for HttpError {
     fn error_response(&self) -> HttpResponse {
         match self.name {
-            "BadRequest" => HttpResponse::BadRequest().json("An error occurred"),
-            "Unauthorized" => HttpResponse::Unauthorized().json("Unauthorized"),
-            "NotFound" => HttpResponse::NotFound().json("Not found"),
-            "OtherClientError" => HttpResponse::BadRequest().json("An error occurred"),
-            "InternalServerError" => {
-                HttpResponse::InternalServerError().json("Internal server error")
-            }
-            _ => HttpResponse::InternalServerError().json("Unknown error"),
+            "BadRequest" => HttpResponse::BadRequest().json(&self.message),
+            "Unauthorized" => HttpResponse::Unauthorized().json(&self.message),
+            "NotFound" => HttpResponse::NotFound().json(&self.message),
+            "OtherClientError" => HttpResponse::BadRequest().json(&self.message),
+            "InternalServerError" => HttpResponse::InternalServerError().json(&self.message),
+            _ => HttpResponse::InternalServerError().json(&self.message),
         }
     }
 }

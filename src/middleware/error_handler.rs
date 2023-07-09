@@ -15,13 +15,28 @@ where
 
         if res.response().status().is_client_error() {
             match res.response().status() {
-                StatusCode::BAD_REQUEST => Err(Error::from(HttpError::new("BadRequest"))),
-                StatusCode::UNAUTHORIZED => Err(Error::from(HttpError::new("Unauthorized"))),
-                StatusCode::NOT_FOUND => Err(Error::from(HttpError::new("NotFound"))),
-                _ => Err(Error::from(HttpError::new("OtherClientError"))),
+                StatusCode::BAD_REQUEST => Err(Error::from(HttpError::new(
+                    "BadRequest",
+                    "Bad request occurred".to_string(),
+                ))),
+                StatusCode::UNAUTHORIZED => Err(Error::from(HttpError::new(
+                    "Unauthorized",
+                    "Unauthorized request".to_string(),
+                ))),
+                StatusCode::NOT_FOUND => Err(Error::from(HttpError::new(
+                    "NotFound",
+                    "Resource not found".to_string(),
+                ))),
+                _ => Err(Error::from(HttpError::new(
+                    "OtherClientError",
+                    "Other client error occurred".to_string(),
+                ))),
             }
         } else if res.response().status().is_server_error() {
-            Err(Error::from(HttpError::new("InternalServerError")))
+            Err(Error::from(HttpError::new(
+                "InternalServerError",
+                "Internal server error occurred".to_string(),
+            )))
         } else {
             Ok(res)
         }
