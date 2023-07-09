@@ -4,25 +4,25 @@ use std::fmt;
 
 #[derive(Debug)]
 pub struct HttpError {
-    name: &'static str,
+    code: &'static str,
     message: String,
 }
 
 impl HttpError {
-    pub fn new(name: &'static str, message: String) -> Self {
-        HttpError { name, message }
+    pub fn new(code: &'static str, message: String) -> Self {
+        HttpError { code, message }
     }
 }
 
 impl fmt::Display for HttpError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{} {}", self.name, self.message)
+        write!(f, "{} {}", self.code, self.message)
     }
 }
 
 impl ResponseError for HttpError {
     fn error_response(&self) -> HttpResponse {
-        match self.name {
+        match self.code {
             "BadRequest" => HttpResponse::BadRequest().json(&self.message),
             "Unauthorized" => HttpResponse::Unauthorized().json(&self.message),
             "NotFound" => HttpResponse::NotFound().json(&self.message),
