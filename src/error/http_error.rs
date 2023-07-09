@@ -7,6 +7,12 @@ pub struct HttpError {
     name: &'static str,
 }
 
+impl HttpError {
+    pub fn new(name: &'static str) -> Self {
+        HttpError { name }
+    }
+}
+
 impl fmt::Display for HttpError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.name)

@@ -1,7 +1,7 @@
 use crate::error::http_error::HttpError;
 use actix_web::{dev, http::StatusCode, Error};
 
-fn error_middleware<S, B>(
+pub fn error_middleware<S, B>(
     req: dev::ServiceRequest,
     srv: &S,
 ) -> impl futures::Future<Output = Result<dev::ServiceResponse<B>, Error>>
@@ -15,19 +15,13 @@ where
 
         if res.response().status().is_client_error() {
             match res.response().status() {
-                StatusCode::BAD_REQUEST => Err(Error::from(HttpError { name: "BadRequest" })),
-                StatusCode::UNAUTHORIZED => Err(Error::from(HttpError {
-                    name: "Unauthorized",
-                })),
-                StatusCode::NOT_FOUND => Err(Error::from(HttpError { name: "NotFound" })),
-                _ => Err(Error::from(HttpError {
-                    name: "OtherClientError",
-                })),
+                StatusCode::BAD_REQUEST => Err(Error::from(HttpError::new("BadRequest"))),
+                StatusCode::UNAUTHORIZED => Err(Error::from(HttpError::new("Unauthorized"))),
+                StatusCode::NOT_FOUND => Err(Error::from(HttpError::new("NotFound"))),
+                _ => Err(Error::from(HttpError::new("OtherClientError"))),
             }
         } else if res.response().status().is_server_error() {
-            Err(Error::from(HttpError {
-                name: "InternalServerError",
-            }))
+            Err(Error::from(HttpError::new("InternalServerError")))
         } else {
             Ok(res)
         }

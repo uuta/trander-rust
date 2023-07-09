@@ -2,7 +2,7 @@ use actix_web::web::Data;
 use actix_web::{App, HttpServer};
 use trander_rust::db;
 use trander_rust::handler;
-use trander_rust::middleware::error_middleware;
+use trander_rust::middleware::error_handler::error_middleware;
 
 extern crate diesel;
 
