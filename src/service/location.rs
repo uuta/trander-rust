@@ -7,7 +7,6 @@ pub trait LocationService {
     fn new_dest(&self) -> (f64, f64);
 }
 
-///
 /// lat: latitute
 /// lng: longitude
 /// angle: angle of direction
