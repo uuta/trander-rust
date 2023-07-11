@@ -5,7 +5,7 @@ use diesel::MysqlConnection;
 use mockall::automock;
 
 #[automock]
-pub trait SettingsService<R: SettingsRepository> {
+pub trait SettingsUseCase<R: SettingsRepository> {
     fn get(
         &self,
         repo: &R,
@@ -22,11 +22,11 @@ pub trait SettingsService<R: SettingsRepository> {
     ) -> Result<(), diesel::result::Error>;
 }
 
-pub struct ImplSettingsService;
+pub struct ImplSettingsUseCase;
 
 // R is a type that implements the SettingsRepository trait.
 // @see https://doc.rust-jp.rs/rust-by-example-ja/generics/gen_trait.html
-impl<R: SettingsRepository> SettingsService<R> for ImplSettingsService {
+impl<R: SettingsRepository> SettingsUseCase<R> for ImplSettingsUseCase {
     fn get(
         &self,
         repo: &R,

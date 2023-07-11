@@ -16,4 +16,4 @@ async fn get_test_db_pool() -> Pool<ConnectionManager<MysqlConnection>> {
 
 #[cfg(test)]
 mod repository;
-mod service;
+mod use_case;

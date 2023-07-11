@@ -2,14 +2,14 @@ use super::get_test_db_pool;
 use chrono::NaiveDateTime;
 use trander_rust::from_request::settings::UpdateParams;
 use trander_rust::repository::settings::MockSettingsRepository;
-use trander_rust::service::settings::{ImplSettingsService, SettingsService};
+use trander_rust::use_case::settings::{ImplSettingsUseCase, SettingsUseCase};
 
 #[actix_rt::test]
 async fn test_get_ok() {
     let mut mock_repo = MockSettingsRepository::new();
     let pool = get_test_db_pool().await;
     let mut conn = pool.get().unwrap();
-    let service = ImplSettingsService;
+    let use_case = ImplSettingsUseCase;
 
     let settings = vec![trander_rust::model::setting::Setting {
         id: 1,
@@ -29,7 +29,7 @@ async fn test_get_ok() {
     let settings_clone = settings.clone();
     mock_repo.expect_get().return_once(move |_, _| Ok(settings));
 
-    let result = service.get(&mock_repo, 1, &mut conn);
+    let result = use_case.get(&mock_repo, 1, &mut conn);
     assert!(result.is_ok());
     assert_eq!(result.unwrap(), settings_clone);
 }
@@ -39,11 +39,11 @@ async fn test_get_ok_empty() {
     let mut mock_repo = MockSettingsRepository::new();
     let pool = get_test_db_pool().await;
     let mut conn = pool.get().unwrap();
-    let service = ImplSettingsService;
+    let use_case = ImplSettingsUseCase;
 
     mock_repo.expect_get().returning(|_, _| Ok(vec![]));
 
-    let result = service.get(&mock_repo, 1, &mut conn);
+    let result = use_case.get(&mock_repo, 1, &mut conn);
     assert!(result.is_ok());
     assert!(result.unwrap().is_empty());
 }
@@ -53,7 +53,7 @@ async fn test_update_ok() {
     let mut mock_repo = MockSettingsRepository::new();
     let pool = get_test_db_pool().await;
     let mut conn = pool.get().unwrap();
-    let service = ImplSettingsService;
+    let use_case = ImplSettingsUseCase;
     let expected_user_id = 1;
 
     let expected_params = UpdateParams {
@@ -70,7 +70,7 @@ async fn test_update_ok() {
             Ok(1)
         });
 
-    let result = service.update(&mock_repo, &mut conn, expected_user_id, expected_params);
+    let result = use_case.update(&mock_repo, &mut conn, expected_user_id, expected_params);
     assert!(result.is_ok());
 }
 
@@ -79,7 +79,7 @@ async fn test_update_err() {
     let mut mock_repo = MockSettingsRepository::new();
     let pool = get_test_db_pool().await;
     let mut conn = pool.get().unwrap();
-    let service = ImplSettingsService;
+    let use_case = ImplSettingsUseCase;
     let expected_user_id = 24;
 
     let expected_params = UpdateParams {
@@ -96,6 +96,6 @@ async fn test_update_err() {
             Err(diesel::result::Error::NotFound)
         });
 
-    let result = service.update(&mock_repo, &mut conn, expected_user_id, expected_params);
+    let result = use_case.update(&mock_repo, &mut conn, expected_user_id, expected_params);
     assert!(result.is_err());
 }
