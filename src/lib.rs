@@ -8,3 +8,4 @@ pub mod repository;
 pub mod schema;
 pub mod service;
 pub mod use_case;
+pub mod util;
