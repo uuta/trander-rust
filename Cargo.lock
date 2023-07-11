@@ -1881,6 +1881,7 @@ dependencies = [
  "geo",
  "geo-types",
  "mockall",
+ "rand",
  "rstest",
  "rust_decimal",
  "serde",
