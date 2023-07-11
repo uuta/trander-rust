@@ -17,3 +17,4 @@ rust_decimal = "1.29.1"
 bigdecimal = {version = "0.3.1", features = ["serde"]}
 futures = "0.3.28"
 geo = "0.25.1"
+geo-types = "0.7.10"

@@ -1879,6 +1879,7 @@ dependencies = [
  "dotenv",
  "futures",
  "geo",
+ "geo-types",
  "mockall",
  "rstest",
  "rust_decimal",
