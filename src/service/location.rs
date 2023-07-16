@@ -1,12 +1,12 @@
+use crate::service::location::new_dest::{NewDest, NewDestService};
 use crate::util::rand_in_range;
-use geo::algorithm::geodesic_destination::GeodesicDestination;
-use geo::Point;
 use mockall::automock;
+
+pub mod new_dest;
 
 #[automock]
 pub trait LocationService {
-    /// TODO: Change new_dest to private
-    fn new_dest(&self) -> (f64, f64);
+    fn location(&self) -> (f64, f64);
 }
 
 /// lat: latitute
@@ -14,8 +14,8 @@ pub trait LocationService {
 /// angle: angle of direction
 /// distance: distance from the point (1km = 1000.0)
 pub struct ImplLocationService {
-    lat: f64,
     lng: f64,
+    lat: f64,
     angle: f64,
     distance: f64,
     min: f64,
@@ -24,10 +24,10 @@ pub struct ImplLocationService {
 }
 
 impl ImplLocationService {
-    pub fn new(lat: f64, lng: f64, angle: f64, distance: f64, min: f64, max: f64) -> Self {
+    pub fn new(lng: f64, lat: f64, angle: f64, distance: f64, min: f64, max: f64) -> Self {
         Self {
-            lat,
             lng,
+            lat,
             angle,
             distance,
             min,
@@ -41,10 +41,9 @@ impl ImplLocationService {
 }
 
 impl LocationService for ImplLocationService {
-    fn new_dest(&self) -> (f64, f64) {
-        let location = Point::new(self.lng, self.lat);
-        let dest = location.geodesic_destination(self.angle, self.distance);
-        (dest.y(), dest.x())
+    fn location(&self) -> (f64, f64) {
+        let new_dest_service = NewDestService;
+        new_dest_service.new_dest(self.lng, self.lat, self.angle, self.distance)
     }
 }
 
@@ -53,10 +52,10 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_location_service() {
+    fn test_location() {
         let location_service =
-            ImplLocationService::new(35.681236, 139.767125, 90.0, 100000.0, 0.0, 1.0);
-        let (lat, lng) = location_service.new_dest();
+            ImplLocationService::new(139.767125, 35.681236, 90.0, 100000.0, 0.0, 1.0);
+        let (lat, lng) = location_service.location();
         assert_eq!(lat, 35.6761685462078);
         assert_eq!(lng, 140.87174397802116);
     }
@@ -64,7 +63,7 @@ mod tests {
     #[test]
     fn test_new_distance() {
         let location_service =
-            ImplLocationService::new(35.681236, 139.767125, 90.0, 100000.0, 0.0, 1.0);
+            ImplLocationService::new(139.767125, 35.681236, 90.0, 100000.0, 0.0, 1.0);
         let new_distance = location_service.new_distance();
         assert!(new_distance >= 0.0 && new_distance <= 1.0);
     }
