@@ -26,6 +26,7 @@ impl ResponseError for HttpError {
             "BadRequest" => HttpResponse::BadRequest().json(&self.message),
             "Unauthorized" => HttpResponse::Unauthorized().json(&self.message),
             "NotFound" => HttpResponse::NotFound().json(&self.message),
+            "ApiRequestError" => HttpResponse::InternalServerError().json(&self.message),
             "OtherClientError" => HttpResponse::BadRequest().json(&self.message),
             "InternalServerError" => HttpResponse::InternalServerError().json(&self.message),
             _ => HttpResponse::InternalServerError().json(&self.message),
