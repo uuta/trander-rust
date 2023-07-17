@@ -2,13 +2,13 @@ use crate::service::location::new_angle::{DirectionType, NewAngle};
 use crate::service::location::new_dest::NewDest;
 use mockall::automock;
 
-pub mod new_angle;
-pub mod new_dest;
-pub mod new_distance;
+mod new_angle;
+mod new_dest;
+mod new_distance;
 
 #[automock]
 pub trait LocationService {
-    fn location(&self) -> (f64, f64);
+    fn location(&mut self) -> (f64, f64);
 }
 
 /// lat: latitute
@@ -45,10 +45,11 @@ impl ImplLocationService {
 }
 
 impl LocationService for ImplLocationService {
-    fn location(&self) -> (f64, f64) {
+    fn location(&mut self) -> (f64, f64) {
         let angle = self.new_angle_service.new_angle(self.direction_type);
         self.new_dest_service
-            .new_dest(self.lng, self.lat, angle, self.distance)
+            .new_dest(self.lng, self.lat, angle, self.distance);
+        self.new_dest_service.get()
     }
 }
 
@@ -71,9 +72,14 @@ mod tests {
         mock_dest_service
             .expect_new_dest()
             .with(eq(139.767125), eq(35.681236), eq(45.0), eq(100000.0))
-            .return_const((35.6761685462078, 140.87174397802116)); // Always return these coordinates
+            .return_const(()); // Always return () when called with these arguments
 
-        let location_service = ImplLocationService::new(
+        mock_dest_service
+            .expect_get()
+            .with()
+            .return_const((35.6761685462078, 140.87174397802116));
+
+        let mut location_service = ImplLocationService::new(
             139.767125,
             35.681236,
             100000.0,

@@ -4,10 +4,14 @@ use mockall::automock;
 
 #[automock]
 pub trait NewDest {
-    fn new_dest(&self, lat: f64, lng: f64, angle: f64, distance: f64) -> (f64, f64);
+    fn new_dest(&mut self, lat: f64, lng: f64, angle: f64, distance: f64);
+    fn get(&self) -> (f64, f64);
+    fn format(&self) -> String;
 }
 
-pub struct NewDestService;
+pub struct NewDestService {
+    dest: Point<f64>,
+}
 
 impl NewDest for NewDestService {
     /// Calculate a new geographic coordinate.
@@ -22,10 +26,22 @@ impl NewDest for NewDestService {
     /// # Returns
     ///
     /// * A tuple `(lat, lng)` representing the new geographic coordinate.
-    fn new_dest(&self, lat: f64, lng: f64, angle: f64, distance: f64) -> (f64, f64) {
+    fn new_dest(&mut self, lat: f64, lng: f64, angle: f64, distance: f64) {
         let location = Point::new(lat, lng);
-        let dest = location.geodesic_destination(angle, distance);
-        (dest.y(), dest.x())
+        self.dest = location.geodesic_destination(angle, distance);
+    }
+
+    /// Get the new geographic coordinate.
+    ///
+    /// # Returns
+    ///
+    /// * A tuple `(lat, lng)` representing the new geographic coordinate.
+    fn get(&self) -> (f64, f64) {
+        (self.dest.y(), self.dest.x())
+    }
+
+    fn format(&self) -> String {
+        format!("{} {}", self.dest.y(), self.dest.x())
     }
 }
 
@@ -35,8 +51,11 @@ mod tests {
 
     #[test]
     fn test_new_dest() {
-        let service = NewDestService;
-        let (lat, lng) = service.new_dest(139.767125, 35.681236, 90.0, 100000.0);
+        let mut service = NewDestService {
+            dest: Point::new(0.0, 0.0),
+        };
+        service.new_dest(139.767125, 35.681236, 90.0, 100000.0);
+        let (lat, lng) = service.get();
         assert_eq!(lat, 35.6761685462078);
         assert_eq!(lng, 140.87174397802116);
     }
