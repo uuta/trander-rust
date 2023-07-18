@@ -1,7 +1,7 @@
+use crate::api::api_handler::get_handler;
 use crate::error::http_error::HttpError;
 use dotenv::dotenv;
 use reqwest::header::HeaderMap;
-use reqwest::Client;
 use serde::Deserialize;
 use std::env;
 
@@ -47,21 +47,12 @@ async fn cities(location: &str) -> Result<Data, HttpError> {
     );
 
     let params = [("location", location), ("limit", "1"), ("radius", "100")];
-    let client = Client::default();
-    let res = client
-        .get("https://wft-geo-db.p.rapidapi.com/v1/geo/cities")
-        .query(&params)
-        .headers(headers)
-        .send()
-        .await
-        .map_err(|e| HttpError::new("ApiRequestError", e.to_string()))? // Network errors
-        .error_for_status() // HTTP status errors
-        .map_err(|e| HttpError::new("ApiStatusError", e.to_string()))?; // Convert to HttpError
-
-    let data: String = res
-        .text()
-        .await
-        .map_err(|e| HttpError::new("JsonParseError", e.to_string()))?;
+    let data = get_handler(
+        "https://wft-geo-db.p.rapidapi.com/v1/geo/cities",
+        headers,
+        params.to_vec(),
+    )
+    .await?;
 
     let parsed_data: Data =
         serde_json::from_str(&data).map_err(|e| HttpError::new("JsonParseError", e.to_string()))?;
