@@ -20,6 +20,9 @@ struct ResultItem {
     rating: Option<f64>,
     user_ratings_total: Option<u32>,
     vicinity: Option<String>,
+    reference: Option<String>,
+    price_level: Option<u32>,
+    photos: Option<Vec<Photo>>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -35,11 +38,20 @@ struct Location {
 }
 
 #[derive(Deserialize, Debug)]
+struct Photo {
+    height: Option<u32>,
+    width: Option<u32>,
+    photo_reference: Option<String>,
+    html_attributions: Option<Vec<String>>,
+}
+
+#[derive(Deserialize, Debug)]
 struct Viewport {
     northeast: Option<Location>,
     southwest: Option<Location>,
 }
 
+/// https://developers.google.com/maps/documentation/places/web-service/search-nearby#maps_http_places_nearbysearch-go
 async fn near_by_search(location: &str, keyword: &str) -> Result<Data, HttpError> {
     dotenv().ok();
     let key = env::var("GOOGLE_PLACES_KEY").unwrap();
@@ -76,6 +88,6 @@ mod tests {
         let result = near_by_search("25.301886,55.433433", "tourist spot").await;
         assert!(result.is_ok());
         let res = result.unwrap();
-        assert_eq!(res.results[0].name, "Bang Lamung".to_string());
+        assert_eq!(res.results[0].name, "Al Noor Island".to_string());
     }
 }
