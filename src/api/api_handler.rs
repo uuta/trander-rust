@@ -6,7 +6,7 @@ use reqwest::Client;
 pub async fn get_handler(
     end_point: &str,
     headers: HeaderMap,
-    params: Vec<(&str, &str)>,
+    params: Vec<(&str, String)>,
 ) -> Result<String, HttpError> {
     dotenv().ok();
 

@@ -28,7 +28,7 @@ struct Data {
     data: Vec<City>,
 }
 
-async fn cities(location: &str) -> Result<Data, HttpError> {
+async fn geo_db_cities(location: &str) -> Result<Data, HttpError> {
     dotenv().ok();
     let key = env::var("GEO_DB_CITIES_API_KEY").unwrap();
 
@@ -46,7 +46,11 @@ async fn cities(location: &str) -> Result<Data, HttpError> {
         })?,
     );
 
-    let params = [("location", location), ("limit", "1"), ("radius", "100")];
+    let params = [
+        ("location", location.to_string()),
+        ("limit", "1".to_string()),
+        ("radius", "100".to_string()),
+    ];
     let data = get_handler(
         "https://wft-geo-db.p.rapidapi.com/v1/geo/cities",
         headers,
@@ -66,8 +70,8 @@ mod tests {
     use actix_rt::test;
 
     #[test]
-    async fn test_cities() {
-        let result = cities("+12.969576+100.900606").await;
+    async fn test_geo_db_cities() {
+        let result = geo_db_cities("+12.969576+100.900606").await;
         assert!(result.is_ok());
         let res = result.unwrap();
         assert_eq!(res.data[0].city, "Bang Lamung");
