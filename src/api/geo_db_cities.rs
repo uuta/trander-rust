@@ -1,4 +1,4 @@
-use crate::api::api_handler::get_handler;
+use crate::api::api_handler::ApiHandler;
 use crate::error::http_error::HttpError;
 use dotenv::dotenv;
 use reqwest::header::HeaderMap;
@@ -28,7 +28,10 @@ struct Data {
     data: Vec<City>,
 }
 
-async fn geo_db_cities(location: &str) -> Result<Data, HttpError> {
+async fn geo_db_cities<A: ApiHandler + Send + Sync>(
+    api: &A,
+    location: &str,
+) -> Result<Data, HttpError> {
     dotenv().ok();
     let key = env::var("GEO_DB_CITIES_API_KEY").unwrap();
 
@@ -47,16 +50,17 @@ async fn geo_db_cities(location: &str) -> Result<Data, HttpError> {
     );
 
     let params = [
-        ("location", location.to_string()),
-        ("limit", "1".to_string()),
-        ("radius", "100".to_string()),
+        ("location".to_string(), location.to_string()),
+        ("limit".to_string(), "1".to_string()),
+        ("radius".to_string(), "100".to_string()),
     ];
-    let data = get_handler(
-        "https://wft-geo-db.p.rapidapi.com/v1/geo/cities",
-        headers,
-        params.to_vec(),
-    )
-    .await?;
+    let data = api
+        .get_handler(
+            "https://wft-geo-db.p.rapidapi.com/v1/geo/cities",
+            headers,
+            params.to_vec(),
+        )
+        .await?;
 
     let parsed_data: Data =
         serde_json::from_str(&data).map_err(|e| HttpError::new("JsonParseError", e.to_string()))?;
@@ -67,14 +71,38 @@ async fn geo_db_cities(location: &str) -> Result<Data, HttpError> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::api::api_handler::MockApiHandler;
     use actix_rt::test;
 
     #[test]
     async fn test_geo_db_cities() {
-        let result = geo_db_cities("+12.969576+100.900606").await;
+        let mut mock_api = MockApiHandler::new();
+        mock_api.expect_get_handler().returning(|_, _, _| {
+            Ok(r#"{
+                "data": [{
+                    "id": 3350606,
+                    "wikiDataId": "Q24668",
+                    "type": "CITY",
+                    "city": "Aixirivall",
+                    "name": "Aixirivall",
+                    "country": "Andorra",
+                    "countryCode": "AD",
+                    "region": "Sant Julià de Lòria",
+                    "regionCode": "06",
+                    "regionWdId": "Q24282",
+                    "latitude": 42.46245,
+                    "longitude": 1.50209,
+                    "population": 0
+                }]
+            }"#
+            .to_string())
+        });
+        let result = geo_db_cities(&mock_api, "+42.46245+1.50209").await;
         assert!(result.is_ok());
         let res = result.unwrap();
-        assert_eq!(res.data[0].city, "Bang Lamung");
-        assert_eq!(res.data[0].country, "Thailand");
+        assert_eq!(res.data[0].city, "Aixirivall");
+        assert_eq!(res.data[0].country, "Andorra");
+        assert_eq!(res.data[0].country_code, "AD");
+        assert_eq!(res.data[0].region, Some("Sant Julià de Lòria".to_string()));
     }
 }

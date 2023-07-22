@@ -1,4 +1,4 @@
-use crate::api::api_handler::get_handler;
+use crate::api::api_handler::ApiHandler;
 use crate::error::http_error::HttpError;
 use dotenv::dotenv;
 use reqwest::header::HeaderMap;
@@ -52,25 +52,30 @@ struct Viewport {
 }
 
 /// https://developers.google.com/maps/documentation/places/web-service/search-nearby#maps_http_places_nearbysearch-go
-async fn near_by_search(location: &str, keyword: &str) -> Result<Data, HttpError> {
+async fn near_by_search<A: ApiHandler + Send + Sync>(
+    api: &A,
+    location: &str,
+    keyword: &str,
+) -> Result<Data, HttpError> {
     dotenv().ok();
     let key = env::var("GOOGLE_PLACES_KEY").unwrap();
 
     let headers = HeaderMap::new();
 
     let params = [
-        ("key", key),
-        ("location", location.to_string()),
-        ("radius", "10000".to_string()),
-        ("keyword", keyword.to_string()),
-        ("language", "en".to_string()),
+        ("key".to_string(), key.to_string()),
+        ("location".to_string(), location.to_string()),
+        ("radius".to_string(), "10000".to_string()),
+        ("keyword".to_string(), keyword.to_string()),
+        ("language".to_string(), "en".to_string()),
     ];
-    let data = get_handler(
-        "https://maps.googleapis.com/maps/api/place/nearbysearch/json",
-        headers,
-        params.to_vec(),
-    )
-    .await?;
+    let data = api
+        .get_handler(
+            "https://maps.googleapis.com/maps/api/place/nearbysearch/json",
+            headers,
+            params.to_vec(),
+        )
+        .await?;
 
     let parsed_data: Data =
         serde_json::from_str(&data).map_err(|e| HttpError::new("JsonParseError", e.to_string()))?;
@@ -81,13 +86,60 @@ async fn near_by_search(location: &str, keyword: &str) -> Result<Data, HttpError
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::api::api_handler::MockApiHandler;
     use actix_rt::test;
 
     #[test]
-    async fn test_cities() {
-        let result = near_by_search("25.301886,55.433433", "tourist spot").await;
+    async fn test_near_by_search() {
+        let mut mock_api = MockApiHandler::new();
+        mock_api
+            .expect_get_handler()
+            .returning(|_, _, _| Ok(r#"{
+        "results": [
+            {
+                "business_status": "OPERATIONAL",
+                "geometry": {
+                    "location": {
+                        "lat": 25.301886,
+                        "lng": 55.433433
+                    },
+                    "viewport": {
+                        "northeast": {
+                            "lat": 25.303236,
+                            "lng": 55.434783
+                        },
+                        "southwest": {
+                            "lat": 25.300536,
+                            "lng": 55.432083
+                        }
+                    }
+                },
+                "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/lodging-71.png",
+                "name": "Al Noor Island",
+                "place_id": "ChIJN1t_tDeuEmsRUsoyG83frY4",
+                "rating": 4.4,
+                "user_ratings_total": 269,
+                "vicinity": "48 Pirrama Road, Pyrmont, NSW 2009, Australia",
+                "reference": "ChIJN1t_tDeuEmsRUsoyG83frY4",
+                "price_level": 3,
+                "photos": [
+                    {
+                        "height": 270,
+                        "width": 519,
+                        "photo_reference": "Aap_uECkX6...",
+                        "html_attributions": [
+                            "<a href=\"https://maps.google.com/maps/contrib/104066891898402903288\">A Google User</a>"
+                        ]
+                    }
+                ]
+            }
+        ]
+    }"#.to_string()));
+        let result = near_by_search(&mock_api, "25.301886,55.433433", "tourist spot").await;
         assert!(result.is_ok());
         let res = result.unwrap();
         assert_eq!(res.results[0].name, "Al Noor Island".to_string());
+        assert_eq!(res.results[0].rating, Some(4.4));
+        assert_eq!(res.results[0].user_ratings_total, Some(269));
     }
 }
