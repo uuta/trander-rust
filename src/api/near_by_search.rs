@@ -10,6 +10,13 @@ struct Data {
     results: Vec<ResultItem>,
 }
 
+impl Data {
+    pub fn rand(&self) -> Option<&ResultItem> {
+        use rand::seq::SliceRandom;
+        self.results.choose(&mut rand::thread_rng())
+    }
+}
+
 #[derive(Deserialize, Debug)]
 struct ResultItem {
     business_status: Option<String>,
@@ -141,5 +148,44 @@ mod tests {
         assert_eq!(res.results[0].name, "Al Noor Island".to_string());
         assert_eq!(res.results[0].rating, Some(4.4));
         assert_eq!(res.results[0].user_ratings_total, Some(269));
+    }
+
+    #[test]
+    async fn test_rand() {
+        let data = Data {
+            results: vec![
+                ResultItem {
+                    business_status: None,
+                    geometry: None,
+                    icon: None,
+                    name: "test1".to_string(),
+                    place_id: None,
+                    rating: None,
+                    user_ratings_total: None,
+                    vicinity: None,
+                    reference: None,
+                    price_level: None,
+                    photos: None,
+                },
+                ResultItem {
+                    business_status: None,
+                    geometry: None,
+                    icon: None,
+                    name: "test2".to_string(),
+                    place_id: None,
+                    rating: None,
+                    user_ratings_total: None,
+                    vicinity: None,
+                    reference: None,
+                    price_level: None,
+                    photos: None,
+                },
+            ],
+        };
+        let rand = data.rand();
+        assert!(rand.is_some());
+        assert!(
+            rand.unwrap().name == "test1".to_string() || rand.unwrap().name == "test2".to_string()
+        );
     }
 }

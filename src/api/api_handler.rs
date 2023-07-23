@@ -17,10 +17,10 @@ pub trait ApiHandler {
     ) -> Result<String, HttpError>;
 }
 
-struct RealApiHandler;
+struct ImplApiHandler;
 
 #[async_trait]
-impl ApiHandler for RealApiHandler {
+impl ApiHandler for ImplApiHandler {
     async fn get_handler(
         &self,
         end_point: &str,
