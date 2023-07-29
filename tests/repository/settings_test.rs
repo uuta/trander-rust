@@ -71,7 +71,7 @@ async fn test_get() {
 }
 
 #[actix_rt::test]
-async fn test_upadte() {
+async fn test_update() {
     let pool = get_test_db_pool().await;
     let mut conn = pool.get().unwrap();
     let repo = ImplSettingsRepository;

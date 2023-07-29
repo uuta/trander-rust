@@ -24,17 +24,17 @@ pub trait GooglePlaceIdsRepository {
 pub struct ImplGooglePlaceIdsRepository;
 
 pub struct UpsertParams {
-    place_id: String,
-    name: String,
-    icon: String,
-    rating: Option<f64>,
-    photo: Option<String>,
-    vicinity: Option<String>,
-    user_ratings_total: Option<i64>,
-    price_level: Option<i64>,
-    lat: f64,
-    lng: f64,
-    rating_star: Option<i64>,
+    pub place_id: String,
+    pub name: String,
+    pub icon: String,
+    pub rating: Option<f64>,
+    pub photo: Option<String>,
+    pub vicinity: Option<String>,
+    pub user_ratings_total: Option<i64>,
+    pub price_level: Option<i64>,
+    pub lat: f64,
+    pub lng: f64,
+    pub rating_star: Option<i64>,
 }
 
 impl GooglePlaceIdsRepository for ImplGooglePlaceIdsRepository {
