@@ -7,6 +7,7 @@ pub trait NewDest {
     fn new_dest(&mut self, lat: f64, lng: f64, angle: f64, distance: f64);
     fn get(&self) -> (f64, f64);
     fn format(&self) -> String;
+    fn concat(&self) -> String;
 }
 
 pub struct NewDestService {
@@ -63,6 +64,18 @@ impl NewDest for NewDestService {
 
         format!("{}{}", lat_str, lng_str)
     }
+
+    /// Format the new geographic coordinate as a string.
+    /// The format is `lat,lng`.
+    ///
+    /// # Returns
+    ///
+    /// * A string representing the new geographic coordinate.
+    fn concat(&self) -> String {
+        let lat = self.dest.y();
+        let lng = self.dest.x();
+        format!("{},{}", lat, lng)
+    }
 }
 
 #[cfg(test)]
@@ -88,5 +101,7 @@ mod tests {
         service.new_dest(139.767125, 35.681236, 90.0, 100000.0);
         let coordinate = service.format();
         assert_eq!(coordinate, "+35.6761685462078+140.87174397802116");
+        let coordinate = service.concat();
+        assert_eq!(coordinate, "35.6761685462078,140.87174397802116");
     }
 }
