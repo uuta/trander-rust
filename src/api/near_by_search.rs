@@ -59,7 +59,7 @@ struct Viewport {
 }
 
 /// https://developers.google.com/maps/documentation/places/web-service/search-nearby#maps_http_places_nearbysearch-go
-async fn near_by_search<A: ApiHandler + Send + Sync>(
+pub async fn near_by_search<A: ApiHandler + Send + Sync>(
     api: &A,
     location: &str,
     keyword: &str,

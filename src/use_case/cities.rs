@@ -1,7 +1,11 @@
+use crate::api::api_handler::ImplApiHandler;
+use crate::api::geo_db_cities::geo_db_cities;
+use crate::api::near_by_search::near_by_search;
 use crate::repository::google_place_ids::GooglePlaceIdsRepository;
 use crate::service::location;
 use crate::service::location::new_angle::NewAngleService;
 use crate::service::location::new_dest::NewDestService;
+use crate::service::location::LocationService;
 use diesel::MysqlConnection;
 use geo::Point;
 use mockall::automock;
@@ -42,6 +46,9 @@ impl<R: GooglePlaceIdsRepository> CitiesUseCase<R> for ImplCitiesUseCase {
                 dest: Point::new(0.0, 0.0),
             }),
         );
-        let (lat, lng) = location_service.location();
+        location_service.gen();
+        let str_lat_lng = location_service.format();
+        geo_db_cities(&ImplApiHandler, &str_lat_lng);
+        let location = near_by_search(&ImplApiHandler, &str_lat_lng, "cafe");
     }
 }

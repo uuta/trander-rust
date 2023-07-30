@@ -17,7 +17,7 @@ pub trait ApiHandler {
     ) -> Result<String, HttpError>;
 }
 
-struct ImplApiHandler;
+pub struct ImplApiHandler;
 
 #[async_trait]
 impl ApiHandler for ImplApiHandler {

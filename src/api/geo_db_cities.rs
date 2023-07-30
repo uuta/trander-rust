@@ -28,7 +28,7 @@ struct Data {
     data: Vec<City>,
 }
 
-async fn geo_db_cities<A: ApiHandler + Send + Sync>(
+pub async fn geo_db_cities<A: ApiHandler + Send + Sync>(
     api: &A,
     location: &str,
 ) -> Result<Data, HttpError> {

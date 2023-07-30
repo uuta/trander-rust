@@ -16,7 +16,9 @@ pub enum DirectionType {
 
 #[automock]
 pub trait LocationService {
-    fn location(&mut self) -> (f64, f64);
+    fn gen(&mut self) -> ();
+    fn get(&mut self) -> (f64, f64);
+    fn format(&mut self) -> String;
 }
 
 /// lat: latitute
@@ -53,11 +55,16 @@ impl ImplLocationService {
 }
 
 impl LocationService for ImplLocationService {
-    fn location(&mut self) -> (f64, f64) {
+    fn gen(&mut self) -> () {
         let angle = self.new_angle_service.new_angle(self.direction_type);
         self.new_dest_service
             .new_dest(self.lng, self.lat, angle, self.distance);
+    }
+    fn get(&mut self) -> (f64, f64) {
         self.new_dest_service.get()
+    }
+    fn format(&mut self) -> String {
+        self.new_dest_service.format()
     }
 }
 
@@ -95,8 +102,11 @@ mod tests {
             Box::new(mock_angle_service),
             Box::new(mock_dest_service),
         );
-        let (lat, lng) = location_service.location();
+        location_service.gen();
+        let (lat, lng) = location_service.get();
         assert_eq!(lat, 35.6761685462078);
         assert_eq!(lng, 140.87174397802116);
+        let formatted = location_service.format();
+        assert_eq!(formatted, "35.6761685462078,140.87174397802116");
     }
 }
