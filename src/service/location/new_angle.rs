@@ -1,17 +1,10 @@
+use crate::service::location::DirectionType;
 use mockall::automock;
 use rand::Rng;
 
 #[automock]
 pub trait NewAngle {
     fn new_angle(&self, direction_type: DirectionType) -> f64;
-}
-
-#[derive(Clone, Copy, PartialEq, Debug)]
-pub enum DirectionType {
-    North,
-    East,
-    South,
-    West,
 }
 
 pub enum DirectionCount {

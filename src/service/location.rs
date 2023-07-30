@@ -1,10 +1,18 @@
-use crate::service::location::new_angle::{DirectionType, NewAngle};
+use crate::service::location::new_angle::NewAngle;
 use crate::service::location::new_dest::NewDest;
 use mockall::automock;
 
-mod new_angle;
-mod new_dest;
+pub mod new_angle;
+pub mod new_dest;
 mod new_distance;
+
+#[derive(Clone, Copy, PartialEq, Debug)]
+pub enum DirectionType {
+    North,
+    East,
+    South,
+    West,
+}
 
 #[automock]
 pub trait LocationService {
@@ -14,7 +22,7 @@ pub trait LocationService {
 /// lat: latitute
 /// lng: longitude
 /// distance: distance from the point (1km = 1000.0)
-/// direction_type: DirectionType (see new_angle.rs)
+/// direction_type: DirectionType
 pub struct ImplLocationService {
     lng: f64,
     lat: f64,
