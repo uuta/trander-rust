@@ -47,8 +47,9 @@ impl<R: GooglePlaceIdsRepository> CitiesUseCase<R> for ImplCitiesUseCase {
             }),
         );
         location_service.gen();
-        let str_lat_lng = location_service.format();
-        geo_db_cities(&ImplApiHandler, &str_lat_lng);
-        let location = near_by_search(&ImplApiHandler, &str_lat_lng, "cafe");
+        let format = location_service.format();
+        let concat = location_service.concat();
+        let geo_db_cities_data = geo_db_cities(&ImplApiHandler, &format);
+        let location = near_by_search(&ImplApiHandler, &concat, "cafe");
     }
 }

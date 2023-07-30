@@ -19,6 +19,7 @@ pub trait LocationService {
     fn gen(&mut self) -> ();
     fn get(&mut self) -> (f64, f64);
     fn format(&mut self) -> String;
+    fn concat(&mut self) -> String;
 }
 
 /// lat: latitute
@@ -66,6 +67,9 @@ impl LocationService for ImplLocationService {
     fn format(&mut self) -> String {
         self.new_dest_service.format()
     }
+    fn concat(&mut self) -> String {
+        self.new_dest_service.concat()
+    }
 }
 
 #[cfg(test)]
@@ -107,6 +111,8 @@ mod tests {
         assert_eq!(lat, 35.6761685462078);
         assert_eq!(lng, 140.87174397802116);
         let formatted = location_service.format();
-        assert_eq!(formatted, "35.6761685462078,140.87174397802116");
+        assert_eq!(formatted, "+35.6761685462078+140.87174397802116");
+        let concated = location_service.concat();
+        assert_eq!(concated, "35.6761685462078,140.87174397802116");
     }
 }

@@ -28,6 +28,21 @@ struct Data {
     data: Vec<City>,
 }
 
+impl Data {
+    pub fn city_name(&self) -> String {
+        let city = self.data.first();
+        let mut keyword = String::new();
+        if let Some(city) = city {
+            if let Some(region) = &city.region {
+                keyword.push_str(region);
+                keyword.push_str(" ");
+            }
+            keyword.push_str(&city.name);
+        }
+        keyword
+    }
+}
+
 pub async fn geo_db_cities<A: ApiHandler + Send + Sync>(
     api: &A,
     location: &str,
@@ -104,5 +119,7 @@ mod tests {
         assert_eq!(res.data[0].country, "Andorra");
         assert_eq!(res.data[0].country_code, "AD");
         assert_eq!(res.data[0].region, Some("Sant Julià de Lòria".to_string()));
+        let city_name = res.city_name();
+        assert_eq!(city_name, "Sant Julià de Lòria Aixirivall");
     }
 }
