@@ -15,6 +15,10 @@ impl Data {
         use rand::seq::SliceRandom;
         self.results.choose(&mut rand::thread_rng())
     }
+
+    pub fn first(&self) -> Option<&ResultItem> {
+        self.results.first()
+    }
 }
 
 #[derive(Deserialize, Debug)]
@@ -187,5 +191,42 @@ mod tests {
         assert!(
             rand.unwrap().name == "test1".to_string() || rand.unwrap().name == "test2".to_string()
         );
+    }
+
+    #[test]
+    async fn test_first() {
+        let data = Data {
+            results: vec![
+                ResultItem {
+                    business_status: None,
+                    geometry: None,
+                    icon: None,
+                    name: "test1".to_string(),
+                    place_id: None,
+                    rating: None,
+                    user_ratings_total: None,
+                    vicinity: None,
+                    reference: None,
+                    price_level: None,
+                    photos: None,
+                },
+                ResultItem {
+                    business_status: None,
+                    geometry: None,
+                    icon: None,
+                    name: "test2".to_string(),
+                    place_id: None,
+                    rating: None,
+                    user_ratings_total: None,
+                    vicinity: None,
+                    reference: None,
+                    price_level: None,
+                    photos: None,
+                },
+            ],
+        };
+        let rand = data.first();
+        assert!(rand.is_some());
+        assert!(rand.unwrap().name == "test1".to_string());
     }
 }
