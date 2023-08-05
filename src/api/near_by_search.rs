@@ -1,5 +1,6 @@
 use crate::api::api_handler::ApiHandler;
 use crate::error::http_error::HttpError;
+use crate::repository::google_place_ids::UpsertParams;
 use dotenv::dotenv;
 use reqwest::header::HeaderMap;
 use serde::Deserialize;
@@ -16,23 +17,63 @@ impl Data {
         self.results.choose(&mut rand::thread_rng())
     }
 
-    pub fn first(&self) -> Option<&ResultItem> {
-        self.results.first()
+    pub fn first(&self) -> Result<&ResultItem, HttpError> {
+        match self.results.first() {
+            Some(first) => Ok(Some(first).unwrap()),
+            None => Err(HttpError::new("NotFound", "City Not Found".to_string())),
+        }
+    }
+
+    pub fn upsert_params(&self, res: &ResultItem) -> UpsertParams {
+        UpsertParams {
+            place_id: res.place_id.clone(),
+            name: res.name.clone(),
+            lat: res
+                .geometry
+                .as_ref()
+                .unwrap()
+                .location
+                .as_ref()
+                .unwrap()
+                .lat,
+            lng: res
+                .geometry
+                .as_ref()
+                .unwrap()
+                .location
+                .as_ref()
+                .unwrap()
+                .lng,
+            icon: res.icon.clone(),
+            photo: res
+                .photos
+                .as_ref()
+                .unwrap()
+                .first()
+                .unwrap()
+                .photo_reference
+                .clone(),
+            rating_star: Some(0),
+            rating: res.rating,
+            user_ratings_total: res.user_ratings_total,
+            vicinity: res.vicinity.clone(),
+            price_level: res.price_level,
+        }
     }
 }
 
 #[derive(Deserialize, Debug)]
-struct ResultItem {
+pub struct ResultItem {
     business_status: Option<String>,
     geometry: Option<Geometry>,
-    icon: Option<String>,
+    icon: String,
     name: String,
-    place_id: Option<String>,
+    place_id: String,
     rating: Option<f64>,
-    user_ratings_total: Option<u32>,
+    user_ratings_total: Option<i64>,
     vicinity: Option<String>,
     reference: Option<String>,
-    price_level: Option<u32>,
+    price_level: Option<i64>,
     photos: Option<Vec<Photo>>,
 }
 
@@ -163,7 +204,7 @@ mod tests {
                     geometry: None,
                     icon: None,
                     name: "test1".to_string(),
-                    place_id: None,
+                    place_id: "XXXTEST1".to_string(),
                     rating: None,
                     user_ratings_total: None,
                     vicinity: None,
@@ -176,7 +217,7 @@ mod tests {
                     geometry: None,
                     icon: None,
                     name: "test2".to_string(),
-                    place_id: None,
+                    place_id: "XXXTEST2".to_string(),
                     rating: None,
                     user_ratings_total: None,
                     vicinity: None,
@@ -202,7 +243,7 @@ mod tests {
                     geometry: None,
                     icon: None,
                     name: "test1".to_string(),
-                    place_id: None,
+                    place_id: "XXXTEST1".to_string(),
                     rating: None,
                     user_ratings_total: None,
                     vicinity: None,
@@ -215,7 +256,7 @@ mod tests {
                     geometry: None,
                     icon: None,
                     name: "test2".to_string(),
-                    place_id: None,
+                    place_id: "XXXTEST2".to_string(),
                     rating: None,
                     user_ratings_total: None,
                     vicinity: None,
@@ -226,7 +267,7 @@ mod tests {
             ],
         };
         let rand = data.first();
-        assert!(rand.is_some());
+        assert!(rand.is_ok());
         assert!(rand.unwrap().name == "test1".to_string());
     }
 }
