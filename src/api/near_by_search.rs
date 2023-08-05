@@ -202,7 +202,7 @@ mod tests {
                 ResultItem {
                     business_status: None,
                     geometry: None,
-                    icon: None,
+                    icon: "icon1".to_string(),
                     name: "test1".to_string(),
                     place_id: "XXXTEST1".to_string(),
                     rating: None,
@@ -215,7 +215,7 @@ mod tests {
                 ResultItem {
                     business_status: None,
                     geometry: None,
-                    icon: None,
+                    icon: "icon2".to_string(),
                     name: "test2".to_string(),
                     place_id: "XXXTEST2".to_string(),
                     rating: None,
@@ -241,7 +241,7 @@ mod tests {
                 ResultItem {
                     business_status: None,
                     geometry: None,
-                    icon: None,
+                    icon: "icon1".to_string(),
                     name: "test1".to_string(),
                     place_id: "XXXTEST1".to_string(),
                     rating: None,
@@ -254,7 +254,7 @@ mod tests {
                 ResultItem {
                     business_status: None,
                     geometry: None,
-                    icon: None,
+                    icon: "icon2".to_string(),
                     name: "test2".to_string(),
                     place_id: "XXXTEST2".to_string(),
                     rating: None,

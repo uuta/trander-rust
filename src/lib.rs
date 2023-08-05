@@ -6,6 +6,7 @@ pub mod handler;
 pub mod middleware;
 pub mod model;
 pub mod repository;
+pub mod response;
 pub mod schema;
 pub mod service;
 pub mod use_case;
