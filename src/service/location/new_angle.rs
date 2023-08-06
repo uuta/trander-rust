@@ -5,6 +5,7 @@ use rand::Rng;
 #[automock]
 pub trait NewAngle {
     fn new_angle(&self, direction_type: DirectionType) -> f64;
+    fn detailed_direction(&self, angle: f64) -> &str;
 }
 
 pub enum DirectionCount {
@@ -18,6 +19,10 @@ impl NewAngle for NewAngleService {
     fn new_angle(&self, direction_type: DirectionType) -> f64 {
         let direction_count = direction_type.to_angle(direction_type);
         direction_count.gen_angle()
+    }
+
+    fn detailed_direction(&self, angle: f64) -> &str {
+        DetailedDirectionType::from_angle(angle).to_str()
     }
 }
 
@@ -33,7 +38,7 @@ impl DirectionType {
 }
 
 impl DetailedDirectionType {
-    pub fn to_angle(&self, angle: f64) -> DetailedDirectionType {
+    pub fn from_angle(angle: f64) -> DetailedDirectionType {
         match angle {
             0.0..=22.5 => DetailedDirectionType::North,
             22.5..=67.5 => DetailedDirectionType::NorthEast,
@@ -74,6 +79,9 @@ impl DirectionCount {
                 }
             }
         }
+    }
+    pub fn detailed_angle(&self, angle: f64) -> &str {
+        DetailedDirectionType::to_angle(&self, angle).to_str()
     }
 }
 

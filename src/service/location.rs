@@ -5,7 +5,7 @@ use mockall::automock;
 
 pub mod new_angle;
 pub mod new_dest;
-mod new_distance;
+pub mod new_distance;
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum DirectionType {
@@ -34,6 +34,7 @@ pub trait LocationService {
     fn format(&mut self) -> String;
     fn concat(&mut self) -> String;
     fn distance(&mut self, target_lng: f64, target_lat: f64) -> f64;
+    fn detailed_direction(&mut self, angle: f64) -> &str;
 }
 
 /// lat: latitute
@@ -90,6 +91,9 @@ impl LocationService for ImplLocationService {
     fn distance(&mut self, target_lng: f64, target_lat: f64) -> f64 {
         self.new_distance_service
             .distance(self.lng, self.lat, target_lng, target_lat)
+    }
+    fn detailed_direction(&mut self, angle: f64) -> &str {
+        self.new_angle_service.detailed_direction(angle)
     }
 }
 
