@@ -1,4 +1,4 @@
-use crate::service::location::DirectionType;
+use crate::service::location::{DetailedDirectionType, DirectionType};
 use mockall::automock;
 use rand::Rng;
 
@@ -28,6 +28,35 @@ impl DirectionType {
             DirectionType::East => DirectionCount::Single(45.0, 135.0),
             DirectionType::South => DirectionCount::Single(135.0, 225.0),
             DirectionType::West => DirectionCount::Single(225.0, 315.0),
+        }
+    }
+}
+
+impl DetailedDirectionType {
+    pub fn to_angle(&self, angle: f64) -> DetailedDirectionType {
+        match angle {
+            0.0..=22.5 => DetailedDirectionType::North,
+            22.5..=67.5 => DetailedDirectionType::NorthEast,
+            67.5..=112.5 => DetailedDirectionType::East,
+            112.5..=157.5 => DetailedDirectionType::SouthEast,
+            157.5..=202.5 => DetailedDirectionType::South,
+            202.5..=247.5 => DetailedDirectionType::SouthWest,
+            247.5..=292.5 => DetailedDirectionType::West,
+            292.5..=337.5 => DetailedDirectionType::NorthWest,
+            337.5..=360.0 => DetailedDirectionType::North,
+            _ => panic!("Invalid angle: {}", angle),
+        }
+    }
+    pub fn to_str(&self) -> &str {
+        match self {
+            DetailedDirectionType::North => "North",
+            DetailedDirectionType::NorthEast => "NorthEast",
+            DetailedDirectionType::East => "East",
+            DetailedDirectionType::SouthEast => "SouthEast",
+            DetailedDirectionType::South => "South",
+            DetailedDirectionType::SouthWest => "SouthWest",
+            DetailedDirectionType::West => "West",
+            DetailedDirectionType::NorthWest => "NorthWest",
         }
     }
 }

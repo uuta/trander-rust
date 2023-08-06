@@ -15,6 +15,18 @@ pub enum DirectionType {
     West,
 }
 
+#[derive(Clone, Copy, PartialEq, Debug)]
+pub enum DetailedDirectionType {
+    North,
+    NorthEast,
+    East,
+    SouthEast,
+    South,
+    SouthWest,
+    West,
+    NorthWest,
+}
+
 #[automock]
 pub trait LocationService {
     fn gen(&mut self) -> ();
