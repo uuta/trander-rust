@@ -127,6 +127,16 @@ mod tests {
             .with()
             .return_const((35.6761685462078, 140.87174397802116));
 
+        mock_dest_service
+            .expect_format()
+            .with()
+            .return_const("+35.6761685462078+140.87174397802116");
+
+        mock_dest_service
+            .expect_concat()
+            .with()
+            .return_const("35.6761685462078,140.87174397802116");
+
         let mut mock_distance_service = MockNewDistance::new();
         mock_distance_service
             .expect_distance()
