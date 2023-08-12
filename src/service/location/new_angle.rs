@@ -42,17 +42,26 @@ impl DirectionType {
 
 impl DetailedDirectionType {
     pub fn from_angle(angle: f64) -> DetailedDirectionType {
-        match angle {
-            0.0..=22.5 => DetailedDirectionType::North,
-            22.5..=67.5 => DetailedDirectionType::NorthEast,
-            67.5..=112.5 => DetailedDirectionType::East,
-            112.5..=157.5 => DetailedDirectionType::SouthEast,
-            157.5..=202.5 => DetailedDirectionType::South,
-            202.5..=247.5 => DetailedDirectionType::SouthWest,
-            247.5..=292.5 => DetailedDirectionType::West,
-            292.5..=337.5 => DetailedDirectionType::NorthWest,
-            337.5..=360.0 => DetailedDirectionType::North,
-            _ => panic!("Invalid angle: {}", angle),
+        if angle >= 0.0 && angle <= 22.5 {
+            DetailedDirectionType::North
+        } else if angle <= 67.5 {
+            DetailedDirectionType::NorthEast
+        } else if angle <= 112.5 {
+            DetailedDirectionType::East
+        } else if angle <= 157.5 {
+            DetailedDirectionType::SouthEast
+        } else if angle <= 202.5 {
+            DetailedDirectionType::South
+        } else if angle <= 247.5 {
+            DetailedDirectionType::SouthWest
+        } else if angle <= 292.5 {
+            DetailedDirectionType::West
+        } else if angle <= 337.5 {
+            DetailedDirectionType::NorthWest
+        } else if angle <= 360.0 {
+            DetailedDirectionType::North
+        } else {
+            panic!("Invalid angle: {}", angle)
         }
     }
     pub fn to_str(&self) -> &'static str {
