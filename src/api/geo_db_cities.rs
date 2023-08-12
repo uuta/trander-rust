@@ -24,7 +24,7 @@ struct City {
 }
 
 #[derive(Deserialize, Debug)]
-struct Data {
+pub struct Data {
     data: Vec<City>,
 }
 
@@ -40,6 +40,13 @@ impl Data {
             keyword.push_str(&city.name);
         }
         keyword
+    }
+    pub fn country_code(&self) -> String {
+        let city = self.data.first();
+        if let Some(city) = city {
+            return city.country_code.clone();
+        }
+        "".to_string()
     }
 }
 

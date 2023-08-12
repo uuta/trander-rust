@@ -3,9 +3,11 @@ use crate::api::geo_db_cities::geo_db_cities;
 use crate::api::near_by_search::near_by_search;
 use crate::error::http_error::HttpError;
 use crate::repository::google_place_ids::GooglePlaceIdsRepository;
+use crate::response;
 use crate::service::location;
 use crate::service::location::new_angle::NewAngleService;
 use crate::service::location::new_dest::NewDestService;
+use crate::service::location::new_distance::NewDistanceService;
 use crate::service::location::LocationService;
 use async_trait::async_trait;
 use diesel::MysqlConnection;
@@ -20,7 +22,7 @@ pub trait CitiesUseCase<R: GooglePlaceIdsRepository> {
         repo: &R,
         conn: &mut MysqlConnection,
         p: GetParams,
-    ) -> Result<(), HttpError>;
+    ) -> Result<response::cities::Response, HttpError>;
 }
 
 pub struct ImplCitiesUseCase;
@@ -33,13 +35,13 @@ pub struct GetParams {
 }
 
 #[async_trait]
-impl<R: GooglePlaceIdsRepository> CitiesUseCase<R> for ImplCitiesUseCase {
+impl<R: GooglePlaceIdsRepository + Send + Sync> CitiesUseCase<R> for ImplCitiesUseCase {
     async fn get(
         &self,
         repo: &R,
         conn: &mut MysqlConnection,
         p: GetParams,
-    ) -> Result<(), HttpError> {
+    ) -> Result<response::cities::Response, HttpError> {
         let mut location_service = location::ImplLocationService::new(
             p.lng,
             p.lat,
@@ -49,6 +51,7 @@ impl<R: GooglePlaceIdsRepository> CitiesUseCase<R> for ImplCitiesUseCase {
             Box::new(NewDestService {
                 dest: Point::new(0.0, 0.0),
             }),
+            Box::new(NewDistanceService),
         );
         location_service.gen();
         let geo_db_cities_data = geo_db_cities(&ImplApiHandler, &location_service.format()).await?;
@@ -59,12 +62,18 @@ impl<R: GooglePlaceIdsRepository> CitiesUseCase<R> for ImplCitiesUseCase {
         )
         .await?;
         match near_by_search_data.first() {
-            is_ok(first) => {
+            Ok(first) => {
                 // google_place_idsテーブルにデータを挿入
                 // TODO: near_by_search_dataの最初の要素を取得し、google_place_idsテーブルに挿入する
-                repo.upsert(conn, near_by_search_data.upsert_params(first))
-                    .await?;
+                repo.upsert(conn, near_by_search_data.upsert_params(first));
                 // TODO: near_by_search_dataの最初の要素を返す
+                Ok(response::cities::Response::new(
+                    &geo_db_cities_data,
+                    first,
+                    &mut location_service,
+                    p.lng,
+                    p.lat,
+                ))
             }
             _ => {
                 return Err(HttpError::new(

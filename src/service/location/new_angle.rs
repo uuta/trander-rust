@@ -3,9 +3,9 @@ use mockall::automock;
 use rand::Rng;
 
 #[automock]
-pub trait NewAngle {
+pub trait NewAngle: Send {
     fn new_angle(&self, direction_type: DirectionType) -> f64;
-    fn detailed_direction(&self, angle: f64) -> &str;
+    fn detailed_direction(&self, angle: f64) -> String;
 }
 
 pub enum DirectionCount {
@@ -17,18 +17,21 @@ pub struct NewAngleService;
 
 impl NewAngle for NewAngleService {
     fn new_angle(&self, direction_type: DirectionType) -> f64 {
-        let direction_count = direction_type.to_angle(direction_type);
+        let direction_count = direction_type.from_angle(direction_type);
         direction_count.gen_angle()
     }
 
-    fn detailed_direction(&self, angle: f64) -> &str {
-        DetailedDirectionType::from_angle(angle).to_str()
+    fn detailed_direction(&self, angle: f64) -> String {
+        DetailedDirectionType::from_angle(angle)
+            .to_str()
+            .to_string()
     }
 }
 
 impl DirectionType {
-    pub fn to_angle(&self, direction_type: DirectionType) -> DirectionCount {
+    pub fn from_angle(&self, direction_type: DirectionType) -> DirectionCount {
         match direction_type {
+            DirectionType::All => DirectionCount::Single(0.0, 360.0),
             DirectionType::North => DirectionCount::Double((315.0, 360.0), (0.0, 45.0)),
             DirectionType::East => DirectionCount::Single(45.0, 135.0),
             DirectionType::South => DirectionCount::Single(135.0, 225.0),
@@ -52,7 +55,7 @@ impl DetailedDirectionType {
             _ => panic!("Invalid angle: {}", angle),
         }
     }
-    pub fn to_str(&self) -> &str {
+    pub fn to_str(&self) -> &'static str {
         match self {
             DetailedDirectionType::North => "North",
             DetailedDirectionType::NorthEast => "NorthEast",
@@ -80,9 +83,6 @@ impl DirectionCount {
             }
         }
     }
-    pub fn detailed_angle(&self, angle: f64) -> &str {
-        DetailedDirectionType::to_angle(&self, angle).to_str()
-    }
 }
 
 #[cfg(test)]
@@ -103,6 +103,9 @@ mod tests {
             let new_angle = service.new_angle(*direction_type);
 
             match direction_type {
+                DirectionType::All => {
+                    assert!(new_angle >= 0.0 && new_angle <= 360.0);
+                }
                 DirectionType::North => {
                     assert!(
                         new_angle >= 315.0 && new_angle <= 360.0
@@ -132,7 +135,7 @@ mod tests {
         ];
 
         for direction_type in direction_types.iter() {
-            let direction_count = direction_type.to_angle(*direction_type);
+            let direction_count = direction_type.from_angle(*direction_type);
             let angle = direction_count.gen_angle();
 
             match direction_count {

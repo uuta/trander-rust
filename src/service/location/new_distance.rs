@@ -4,7 +4,7 @@ use geo::prelude::*;
 use mockall::automock;
 
 #[automock]
-pub trait NewDistance {
+pub trait NewDistance: Send {
     fn new_distance(&self, min: f64, max: f64) -> f64;
     fn distance(&self, lng: f64, lat: f64, target_lng: f64, target_lat: f64) -> f64;
 }

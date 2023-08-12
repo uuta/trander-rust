@@ -7,7 +7,7 @@ use serde::Deserialize;
 use std::env;
 
 #[derive(Deserialize, Debug)]
-struct Data {
+pub struct Data {
     results: Vec<ResultItem>,
 }
 
@@ -28,22 +28,8 @@ impl Data {
         UpsertParams {
             place_id: res.place_id.clone(),
             name: res.name.clone(),
-            lat: res
-                .geometry
-                .as_ref()
-                .unwrap()
-                .location
-                .as_ref()
-                .unwrap()
-                .lat,
-            lng: res
-                .geometry
-                .as_ref()
-                .unwrap()
-                .location
-                .as_ref()
-                .unwrap()
-                .lng,
+            lat: res.geometry.location.lat,
+            lng: res.geometry.location.lng,
             icon: res.icon.clone(),
             photo: res
                 .photos
@@ -65,7 +51,7 @@ impl Data {
 #[derive(Deserialize, Debug)]
 pub struct ResultItem {
     business_status: Option<String>,
-    geometry: Option<Geometry>,
+    geometry: Geometry,
     icon: String,
     name: String,
     place_id: String,
@@ -77,9 +63,42 @@ pub struct ResultItem {
     photos: Option<Vec<Photo>>,
 }
 
+impl ResultItem {
+    pub fn business_status(&self) -> String {
+        self.business_status.clone().unwrap_or("".to_string())
+    }
+    pub fn icon(&self) -> String {
+        self.icon.clone()
+    }
+    pub fn name(&self) -> String {
+        self.name.clone()
+    }
+    pub fn place_id(&self) -> String {
+        self.place_id.clone()
+    }
+    pub fn rating(&self) -> f64 {
+        self.rating.clone().unwrap_or(0.0)
+    }
+    pub fn user_ratings_total(&self) -> i64 {
+        self.user_ratings_total.clone().unwrap_or(0)
+    }
+    pub fn vicinity(&self) -> String {
+        self.vicinity.clone().unwrap_or("".to_string())
+    }
+    pub fn price_level(&self) -> i64 {
+        self.price_level.clone().unwrap_or(0)
+    }
+    pub fn lat(&self) -> f64 {
+        self.geometry.location.lat
+    }
+    pub fn lng(&self) -> f64 {
+        self.geometry.location.lng
+    }
+}
+
 #[derive(Deserialize, Debug)]
 struct Geometry {
-    location: Option<Location>,
+    location: Location,
     viewport: Option<Viewport>,
 }
 
@@ -201,7 +220,13 @@ mod tests {
             results: vec![
                 ResultItem {
                     business_status: None,
-                    geometry: None,
+                    geometry: Geometry {
+                        location: Location {
+                            lat: 25.301886,
+                            lng: 55.433433,
+                        },
+                        viewport: None,
+                    },
                     icon: "icon1".to_string(),
                     name: "test1".to_string(),
                     place_id: "XXXTEST1".to_string(),
@@ -214,7 +239,13 @@ mod tests {
                 },
                 ResultItem {
                     business_status: None,
-                    geometry: None,
+                    geometry: Geometry {
+                        location: Location {
+                            lat: 25.301886,
+                            lng: 55.433433,
+                        },
+                        viewport: None,
+                    },
                     icon: "icon2".to_string(),
                     name: "test2".to_string(),
                     place_id: "XXXTEST2".to_string(),
@@ -240,7 +271,13 @@ mod tests {
             results: vec![
                 ResultItem {
                     business_status: None,
-                    geometry: None,
+                    geometry: Geometry {
+                        location: Location {
+                            lat: 25.301886,
+                            lng: 55.433433,
+                        },
+                        viewport: None,
+                    },
                     icon: "icon1".to_string(),
                     name: "test1".to_string(),
                     place_id: "XXXTEST1".to_string(),
@@ -253,7 +290,13 @@ mod tests {
                 },
                 ResultItem {
                     business_status: None,
-                    geometry: None,
+                    geometry: Geometry {
+                        location: Location {
+                            lat: 25.301886,
+                            lng: 55.433433,
+                        },
+                        viewport: None,
+                    },
                     icon: "icon2".to_string(),
                     name: "test2".to_string(),
                     place_id: "XXXTEST2".to_string(),

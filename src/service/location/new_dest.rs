@@ -3,7 +3,7 @@ use geo::Point;
 use mockall::automock;
 
 #[automock]
-pub trait NewDest {
+pub trait NewDest: Send {
     fn new_dest(&mut self, lat: f64, lng: f64, angle: f64, distance: f64);
     fn get(&self) -> (f64, f64);
     fn format(&self) -> String;
@@ -11,7 +11,7 @@ pub trait NewDest {
 }
 
 pub struct NewDestService {
-    dest: Point<f64>,
+    pub dest: Point<f64>,
 }
 
 impl NewDest for NewDestService {

@@ -9,6 +9,7 @@ pub mod new_distance;
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum DirectionType {
+    All,
     North,
     East,
     South,
@@ -34,7 +35,7 @@ pub trait LocationService {
     fn format(&mut self) -> String;
     fn concat(&mut self) -> String;
     fn distance(&mut self, target_lng: f64, target_lat: f64) -> f64;
-    fn detailed_direction(&mut self, angle: f64) -> &str;
+    fn detailed_direction(&mut self) -> String;
 }
 
 /// lat: latitute
@@ -46,9 +47,10 @@ pub struct ImplLocationService {
     lat: f64,
     distance: f64,
     direction_type: DirectionType,
-    new_angle_service: Box<dyn NewAngle>,
-    new_dest_service: Box<dyn NewDest>,
-    new_distance_service: Box<dyn NewDistance>,
+    angle: f64,
+    new_angle_service: Box<dyn NewAngle + Send>,
+    new_dest_service: Box<dyn NewDest + Send>,
+    new_distance_service: Box<dyn NewDistance + Send>,
 }
 
 impl ImplLocationService {
@@ -57,15 +59,16 @@ impl ImplLocationService {
         lat: f64,
         distance: f64,
         direction_type: DirectionType,
-        new_angle_service: Box<dyn NewAngle>,
-        new_dest_service: Box<dyn NewDest>,
-        new_distance_service: Box<dyn NewDistance>,
+        new_angle_service: Box<dyn NewAngle + Send>,
+        new_dest_service: Box<dyn NewDest + Send>,
+        new_distance_service: Box<dyn NewDistance + Send>,
     ) -> Self {
         Self {
             lng,
             lat,
             distance,
             direction_type,
+            angle: 0.0,
             new_angle_service,
             new_dest_service,
             new_distance_service,
@@ -75,9 +78,9 @@ impl ImplLocationService {
 
 impl LocationService for ImplLocationService {
     fn gen(&mut self) -> () {
-        let angle = self.new_angle_service.new_angle(self.direction_type);
+        self.angle = self.new_angle_service.new_angle(self.direction_type);
         self.new_dest_service
-            .new_dest(self.lng, self.lat, angle, self.distance);
+            .new_dest(self.lng, self.lat, self.angle, self.distance);
     }
     fn get(&mut self) -> (f64, f64) {
         self.new_dest_service.get()
@@ -92,8 +95,8 @@ impl LocationService for ImplLocationService {
         self.new_distance_service
             .distance(self.lng, self.lat, target_lng, target_lat)
     }
-    fn detailed_direction(&mut self, angle: f64) -> &str {
-        self.new_angle_service.detailed_direction(angle)
+    fn detailed_direction(&mut self) -> String {
+        self.new_angle_service.detailed_direction(self.angle)
     }
 }
 
