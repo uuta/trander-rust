@@ -28,10 +28,10 @@ pub trait CitiesUseCase<R: GooglePlaceIdsRepository> {
 pub struct ImplCitiesUseCase;
 
 pub struct GetParams {
-    lng: f64,
-    lat: f64,
-    distance: f64,
-    direction_type: location::DirectionType,
+    pub lng: f64,
+    pub lat: f64,
+    pub distance: f64,
+    pub direction_type: location::DirectionType,
 }
 
 #[async_trait]
@@ -64,9 +64,7 @@ impl<R: GooglePlaceIdsRepository + Send + Sync> CitiesUseCase<R> for ImplCitiesU
         match near_by_search_data.first() {
             Ok(first) => {
                 // google_place_idsテーブルにデータを挿入
-                // TODO: near_by_search_dataの最初の要素を取得し、google_place_idsテーブルに挿入する
-                repo.upsert(conn, near_by_search_data.upsert_params(first));
-                // TODO: near_by_search_dataの最初の要素を返す
+                let _ = repo.upsert(conn, near_by_search_data.upsert_params(first));
                 Ok(response::cities::Response::new(
                     &geo_db_cities_data,
                     first,
