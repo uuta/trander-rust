@@ -2,6 +2,7 @@ use crate::service::location::new_angle::NewAngle;
 use crate::service::location::new_dest::NewDest;
 use crate::service::location::new_distance::NewDistance;
 use mockall::automock;
+use std::str::FromStr;
 
 pub mod new_angle;
 pub mod new_dest;
@@ -14,6 +15,21 @@ pub enum DirectionType {
     East,
     South,
     West,
+}
+
+impl FromStr for DirectionType {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "all" => Ok(DirectionType::All),
+            "north" => Ok(DirectionType::North),
+            "east" => Ok(DirectionType::East),
+            "south" => Ok(DirectionType::South),
+            "west" => Ok(DirectionType::West),
+            _ => Err(()),
+        }
+    }
 }
 
 #[derive(Clone, Copy, PartialEq, Debug)]
