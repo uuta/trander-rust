@@ -1,5 +1,5 @@
 use crate::api::api_handler::ApiHandler;
-use crate::error::http_error::HttpError;
+use crate::error::http_error::{HttpError, HttpErrorType};
 use crate::repository::google_place_ids::UpsertParams;
 use dotenv::dotenv;
 use reqwest::header::HeaderMap;
@@ -20,7 +20,11 @@ impl Data {
     pub fn first(&self) -> Result<&ResultItem, HttpError> {
         match self.results.first() {
             Some(first) => Ok(Some(first).unwrap()),
-            None => Err(HttpError::new("NotFound", "City Not Found".to_string())),
+            None => Err(HttpError {
+                cause: None,
+                message: Some("Item not found".to_string()),
+                error_type: HttpErrorType::NotFoundError,
+            }),
         }
     }
 
@@ -148,8 +152,7 @@ pub async fn near_by_search<A: ApiHandler + Send + Sync>(
         )
         .await?;
 
-    let parsed_data: Data =
-        serde_json::from_str(&data).map_err(|e| HttpError::new("JsonParseError", e.to_string()))?;
+    let parsed_data: Data = serde_json::from_str(&data).map_err(|e| HttpError::from(e))?;
 
     Ok(parsed_data)
 }

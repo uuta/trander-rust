@@ -36,14 +36,11 @@ impl ApiHandler for ImplApiHandler {
             .headers(headers)
             .send()
             .await
-            .map_err(|e| HttpError::new("ApiRequestError", e.to_string()))? // Network errors
-            .error_for_status() // HTTP status errors
-            .map_err(|e| HttpError::new("ApiStatusError", e.to_string()))?; // Convert to HttpError
+            .map_err(|e| HttpError::from(e))?
+            .error_for_status()
+            .map_err(|e| HttpError::from(e))?;
 
-        let data: String = res
-            .text()
-            .await
-            .map_err(|e| HttpError::new("JsonParseError", e.to_string()))?;
+        let data: String = res.text().await.map_err(|e| HttpError::from(e))?;
 
         Ok(data)
     }

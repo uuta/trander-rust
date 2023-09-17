@@ -60,15 +60,13 @@ pub async fn geo_db_cities<A: ApiHandler + Send + Sync>(
     let mut headers = HeaderMap::new();
     headers.insert(
         "x-rapidapi-host",
-        "wft-geo-db.p.rapidapi.com".parse().map_err(|_| {
-            HttpError::new("InvalidHeaderValue", "Invalid header value".to_string())
-        })?,
+        "wft-geo-db.p.rapidapi.com"
+            .parse()
+            .map_err(|e| HttpError::from(e))?,
     );
     headers.insert(
         "x-rapidapi-key",
-        key.parse().map_err(|_| {
-            HttpError::new("InvalidHeaderValue", "Invalid header value".to_string())
-        })?,
+        key.parse().map_err(|e| HttpError::from(e))?,
     );
 
     let params = [
@@ -84,8 +82,7 @@ pub async fn geo_db_cities<A: ApiHandler + Send + Sync>(
         )
         .await?;
 
-    let parsed_data: Data =
-        serde_json::from_str(&data).map_err(|e| HttpError::new("JsonParseError", e.to_string()))?;
+    let parsed_data: Data = serde_json::from_str(&data).map_err(|e| HttpError::from(e))?;
 
     Ok(parsed_data)
 }

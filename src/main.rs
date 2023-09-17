@@ -4,7 +4,7 @@ use tracing::Level;
 use tracing_subscriber;
 use trander_rust::db;
 use trander_rust::handler;
-use trander_rust::middleware::error_handler::error_middleware;
+// use trander_rust::middleware::error_handler::error_middleware;
 
 extern crate diesel;
 
@@ -27,9 +27,10 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .app_data(Data::new(pool.clone()))
-            .wrap_fn(error_middleware)
+            // .wrap_fn(error_middleware)
             .service(handler::settings::get)
             .service(handler::index::index)
+            .service(handler::cities::get)
     })
     .bind((SERVER_IP, PORT))?
     .run()

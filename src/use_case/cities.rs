@@ -1,7 +1,7 @@
 use crate::api::api_handler::ImplApiHandler;
 use crate::api::geo_db_cities::geo_db_cities;
 use crate::api::near_by_search::near_by_search;
-use crate::error::http_error::HttpError;
+use crate::error::http_error::{HttpError, HttpErrorType};
 use crate::from_request::cities::GetParams;
 use crate::repository::google_place_ids::GooglePlaceIdsRepository;
 use crate::response;
@@ -68,10 +68,11 @@ impl<R: GooglePlaceIdsRepository + Send + Sync> CitiesUseCase<R> for ImplCitiesU
                 ))
             }
             _ => {
-                return Err(HttpError::new(
-                    "NotFound",
-                    "near_by_search_data.first() is None".to_string(),
-                ));
+                return Err(HttpError {
+                    cause: None,
+                    message: Some("Item not found".to_string()),
+                    error_type: HttpErrorType::NotFoundError,
+                })
             }
         }
     }
