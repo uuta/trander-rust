@@ -4,5 +4,5 @@ use tracing::info;
 #[get("/")]
 pub async fn index() -> impl Responder {
     info!("Request to index");
-    HttpResponse::Ok().body("Hella, World!")
+    HttpResponse::Ok().body("Hello, World!")
 }
