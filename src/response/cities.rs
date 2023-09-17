@@ -1,8 +1,9 @@
 use crate::api::geo_db_cities::Data as GeoDbCitiesData;
 use crate::api::near_by_search::ResultItem as NearBySearchResultItem;
 use crate::service::location::{ImplLocationService, LocationService};
+use serde::Serialize;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize)]
 pub struct Response {
     pub name: String,
     pub distance: f64,

@@ -2,6 +2,7 @@ use crate::api::api_handler::ImplApiHandler;
 use crate::api::geo_db_cities::geo_db_cities;
 use crate::api::near_by_search::near_by_search;
 use crate::error::http_error::HttpError;
+use crate::from_request::cities::GetParams;
 use crate::repository::google_place_ids::GooglePlaceIdsRepository;
 use crate::response;
 use crate::service::location;
@@ -26,13 +27,6 @@ pub trait CitiesUseCase<R: GooglePlaceIdsRepository> {
 }
 
 pub struct ImplCitiesUseCase;
-
-pub struct GetParams {
-    pub lng: f64,
-    pub lat: f64,
-    pub distance: f64,
-    pub direction_type: location::DirectionType,
-}
 
 #[async_trait]
 impl<R: GooglePlaceIdsRepository + Send + Sync> CitiesUseCase<R> for ImplCitiesUseCase {
