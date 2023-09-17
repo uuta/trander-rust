@@ -1,12 +1,13 @@
 use actix_web::web::Data;
 use actix_web::{App, HttpServer};
+use tracing::Level;
+use tracing_subscriber;
 use trander_rust::db;
 use trander_rust::handler;
 use trander_rust::middleware::error_handler::error_middleware;
 
 extern crate diesel;
 
-// INFO:
 // Using 127.0.0.1 or localhost here won’t work from inside docker.
 // Ref: https://blog.logrocket.com/packaging-a-rust-web-service-using-docker/
 const SERVER_IP: &str = "0.0.0.0";
@@ -14,10 +15,13 @@ const PORT: u16 = 8080;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    // db moduleからestablish_connection関数をimport
+    // Output INFO level logs and above
+    tracing_subscriber::fmt().with_max_level(Level::INFO).init();
+
+    // import establish_connection method from db module
     let pool = db::establish_connection();
 
-    // app_dataを用いactix_webにdb poolをinject
+    // Inject db pool to actix_web by app_data
     HttpServer::new(move || {
         App::new()
             .app_data(Data::new(pool.clone()))
