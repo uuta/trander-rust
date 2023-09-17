@@ -16,7 +16,9 @@ const PORT: u16 = 8080;
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     // Output INFO level logs and above
-    tracing_subscriber::fmt().with_max_level(Level::INFO).init();
+    tracing_subscriber::fmt()
+        .with_max_level(Level::DEBUG)
+        .init();
 
     // import establish_connection method from db module
     let pool = db::establish_connection();

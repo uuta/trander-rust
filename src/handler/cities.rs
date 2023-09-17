@@ -6,7 +6,6 @@ use crate::use_case::cities::{CitiesUseCase, ImplCitiesUseCase};
 use actix_web::web::{Data, Json};
 use actix_web::{get, Responder};
 
-// TODO: Check that request is handled correctly
 #[get("/cities")]
 pub async fn get(db: Data<db::DbPool>, params: GetParams) -> Result<impl Responder, HttpError> {
     let mut conn = db
