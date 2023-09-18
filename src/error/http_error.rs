@@ -16,6 +16,7 @@ pub enum HttpErrorType {
     NetworkError,
     HeaderParseError,
     JsonParseError,
+    IOError,
 }
 
 // Struct type is already defined Option<String> and HttpErrorType. We can also define later.
@@ -78,6 +79,11 @@ impl HttpError {
                 message: None,
                 error_type: HttpErrorType::JsonParseError,
             } => cause.clone(),
+            HttpError {
+                cause: Some(cause),
+                message: None,
+                error_type: HttpErrorType::IOError,
+            } => cause.clone(),
             _ => "An unexpected error has occured".to_string(),
         }
     }
@@ -110,6 +116,7 @@ impl ResponseError for HttpError {
             HttpErrorType::NetworkError => StatusCode::BAD_REQUEST,
             HttpErrorType::HeaderParseError => StatusCode::BAD_REQUEST,
             HttpErrorType::JsonParseError => StatusCode::BAD_REQUEST,
+            HttpErrorType::IOError => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
 
@@ -183,6 +190,16 @@ impl From<serde_json::Error> for HttpError {
             message: None,
             cause: Some(error.to_string()),
             error_type: HttpErrorType::JsonParseError,
+        }
+    }
+}
+
+impl From<std::io::Error> for HttpError {
+    fn from(error: std::io::Error) -> HttpError {
+        HttpError {
+            message: None,
+            cause: Some(error.to_string()),
+            error_type: HttpErrorType::IOError,
         }
     }
 }
