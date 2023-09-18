@@ -15,7 +15,7 @@ const PORT: u16 = 8080;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    // Output INFO level logs and above
+    // Output DEBUG level logs and above
     tracing_subscriber::fmt()
         .with_max_level(Level::DEBUG)
         .init();
@@ -31,6 +31,7 @@ async fn main() -> std::io::Result<()> {
             .service(handler::settings::get)
             .service(handler::index::index)
             .service(handler::cities::get)
+            .service(handler::near_by_search::get)
     })
     .bind((SERVER_IP, PORT))?
     .run()
