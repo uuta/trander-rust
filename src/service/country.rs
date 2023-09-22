@@ -62,3 +62,19 @@ impl CountryService for ImplCountryService {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    /// Test the mocked rnd function
+    fn test_rnd() {
+        let mut mock = MockCountryService::new();
+        mock.expect_rnd()
+            .returning(|| Ok("DE".to_string()))
+            .times(1);
+        let result = mock.rnd();
+        assert_eq!(result.unwrap(), "DE".to_string());
+    }
+}

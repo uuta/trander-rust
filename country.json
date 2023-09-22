@@ -1,0 +1,12 @@
+
+            {
+                "USA": {
+                    "name": "United States of America",
+                    "region": "Americas",
+                    "timezones": {"EST": "UTC-5", "CST": "UTC-6", "MST": "UTC-7", "PST": "UTC-8"},
+                    "iso": {"alpha-2": "US", "alpha-3": "USA", "numeric": "840"},
+                    "phone": ["1"],
+                    "image": "https://example.com/usa.png"
+                }
+            }
+            
