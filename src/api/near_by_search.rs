@@ -1,5 +1,5 @@
 use crate::api::api_handler::ApiHandler;
-use crate::error::http_error::{HttpError, HttpErrorType};
+use crate::error::http_error::HttpError;
 use crate::repository::google_place_ids::UpsertParams;
 use dotenv::dotenv;
 use reqwest::header::HeaderMap;
@@ -17,15 +17,8 @@ impl Data {
         self.results.choose(&mut rand::thread_rng())
     }
 
-    pub fn first(&self) -> Result<&ResultItem, HttpError> {
-        match self.results.first() {
-            Some(first) => Ok(Some(first).unwrap()),
-            None => Err(HttpError {
-                cause: None,
-                message: Some("Item not found".to_string()),
-                error_type: HttpErrorType::NotFoundError,
-            }),
-        }
+    pub fn first(&self) -> Option<&ResultItem> {
+        self.results.first()
     }
 }
 
@@ -52,14 +45,22 @@ impl ResultItem {
             lat: self.geometry.location.lat,
             lng: self.geometry.location.lng,
             icon: self.icon.clone(),
-            photo: self
-                .photos
-                .as_ref()
-                .unwrap()
-                .first()
-                .unwrap()
-                .photo_reference
-                .clone(),
+            // TODO:
+            photo: {
+                let default_photo = vec![Photo {
+                    height: None,
+                    width: None,
+                    photo_reference: None,
+                    html_attributions: None,
+                }];
+                self.photos
+                    .as_ref()
+                    .unwrap_or(&default_photo)
+                    .first()
+                    .map(|photo| photo.photo_reference.clone())
+                    .unwrap_or_else(|| Some("".to_string()))
+            },
+            // TODO:
             rating_star: Some(0),
             rating: self.rating,
             user_ratings_total: self.user_ratings_total,
@@ -97,6 +98,9 @@ impl ResultItem {
     pub fn lng(&self) -> f64 {
         self.geometry.location.lng
     }
+    pub fn photos(&self) -> Option<&Vec<Photo>> {
+        self.photos.as_ref()
+    }
 }
 
 #[derive(Deserialize, Debug)]
@@ -112,7 +116,7 @@ struct Location {
 }
 
 #[derive(Deserialize, Debug)]
-struct Photo {
+pub struct Photo {
     height: Option<u32>,
     width: Option<u32>,
     photo_reference: Option<String>,
@@ -311,8 +315,8 @@ mod tests {
                 },
             ],
         };
-        let rand = data.first();
-        assert!(rand.is_ok());
-        assert!(rand.unwrap().name == "test1".to_string());
+        let first = data.first();
+        assert!(first.is_some());
+        assert!(first.unwrap().name == "test1".to_string());
     }
 }

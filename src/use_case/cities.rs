@@ -58,7 +58,7 @@ impl<R: GooglePlaceIdsRepository + Send + Sync> CitiesUseCase<R> for ImplCitiesU
                 )
                 .await?;
                 match near_by_search_data.first() {
-                    Ok(first) => {
+                    Some(first) => {
                         // google_place_idsテーブルにデータを挿入
                         let _ = repo.upsert(conn, first.upsert_params());
                         Ok(response::cities::Response::new(

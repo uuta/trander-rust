@@ -51,7 +51,7 @@ impl<R: GooglePlaceIdsRepository + Send + Sync> NearBySearchUseCase<R> for ImplN
         let near_by_search_data =
             near_by_search(&ImplApiHandler, &location_service.concat(), &p.keyword).await?;
         match near_by_search_data.first() {
-            Ok(first) => {
+            Some(first) => {
                 // google_place_idsテーブルにデータを挿入
                 let _ = repo.upsert(conn, first.upsert_params());
 
