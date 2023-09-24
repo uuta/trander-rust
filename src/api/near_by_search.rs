@@ -12,7 +12,7 @@ pub struct Data {
 }
 
 impl Data {
-    pub fn rand(&self) -> Option<&ResultItem> {
+    pub fn rnd(&self) -> Option<&ResultItem> {
         use rand::seq::SliceRandom;
         self.results.choose(&mut rand::thread_rng())
     }
@@ -264,7 +264,7 @@ mod tests {
                 },
             ],
         };
-        let rand = data.rand();
+        let rand = data.rnd();
         assert!(rand.is_some());
         assert!(
             rand.unwrap().name == "test1".to_string() || rand.unwrap().name == "test2".to_string()

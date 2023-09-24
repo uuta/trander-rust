@@ -20,17 +20,17 @@ pub struct Response {
 
 impl Response {
     pub fn new(
-        geo_db_cities_data: &City,
+        cities: &City,
         near_by_search: &NearBySearchResultItem,
         location_service: &mut ImplLocationService,
         lng: f64,
         lat: f64,
     ) -> Self {
         Self {
-            name: geo_db_cities_data.city_name(),
+            name: near_by_search.name(),
             distance: location_service.distance(lng, lat),
             direction: location_service.detailed_direction().to_string(),
-            country_code: geo_db_cities_data.country_code(),
+            country_code: cities.country_code(),
             icon: near_by_search.icon(),
             rating: near_by_search.rating(),
             vicinity: near_by_search.vicinity(),

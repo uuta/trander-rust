@@ -2,6 +2,7 @@ use crate::api::api_handler::ImplApiHandler;
 use crate::api::geo_db_cities::geo_db_cities_by_country_code;
 use crate::api::near_by_search::near_by_search;
 use crate::error::http_error::{HttpError, HttpErrorType};
+use crate::from_request::backpacker::Params;
 use crate::repository::google_place_ids::GooglePlaceIdsRepository;
 use crate::response;
 use crate::service::country::{CountryService, ImplCountryService};
@@ -23,6 +24,7 @@ pub trait BackpackerUseCase<R: GooglePlaceIdsRepository> {
         &self,
         repo: &R,
         conn: &mut MysqlConnection,
+        params: Params,
     ) -> Result<response::backpacker::Response, HttpError>;
 }
 
@@ -34,6 +36,7 @@ impl<R: GooglePlaceIdsRepository + Send + Sync> BackpackerUseCase<R> for ImplBac
         &self,
         repo: &R,
         conn: &mut MysqlConnection,
+        params: Params,
     ) -> Result<response::backpacker::Response, HttpError> {
         let mut country_service = ImplCountryService::new()?;
         let country_code = country_service.rnd()?;
@@ -58,15 +61,19 @@ impl<R: GooglePlaceIdsRepository + Send + Sync> BackpackerUseCase<R> for ImplBac
                     Box::new(NewDistanceService),
                 );
                 location_service.gen();
-                let near_by_search_data = near_by_search(
-                    &ImplApiHandler,
-                    &location_service.concat(),
-                    &first_geo.city_name(),
-                )
-                .await?;
-                match near_by_search_data.first() {
+
+                // Set a keyword
+                let keyword = if params.keyword.is_empty() {
+                    first_geo.city_name()
+                } else {
+                    params.keyword
+                };
+
+                let near_by_search_data =
+                    near_by_search(&ImplApiHandler, &location_service.concat(), &keyword).await?;
+                match near_by_search_data.rnd() {
                     Some(first) => {
-                        // google_place_idsテーブルにデータを挿入
+                        // Upsert google_place_ids table
                         let _ = repo.upsert(conn, first.upsert_params());
                         Ok(response::backpacker::Response::new(
                             &first_geo,
