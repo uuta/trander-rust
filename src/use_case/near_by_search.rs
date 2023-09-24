@@ -53,7 +53,7 @@ impl<R: GooglePlaceIdsRepository + Send + Sync> NearBySearchUseCase<R> for ImplN
         match near_by_search_data.first() {
             Ok(first) => {
                 // google_place_idsテーブルにデータを挿入
-                let _ = repo.upsert(conn, near_by_search_data.upsert_params(first));
+                let _ = repo.upsert(conn, first.upsert_params());
 
                 // geo_db_citiesからデータを取得
                 let geo_db_cities_data =

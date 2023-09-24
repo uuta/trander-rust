@@ -27,29 +27,6 @@ impl Data {
             }),
         }
     }
-
-    pub fn upsert_params(&self, res: &ResultItem) -> UpsertParams {
-        UpsertParams {
-            place_id: res.place_id.clone(),
-            name: res.name.clone(),
-            lat: res.geometry.location.lat,
-            lng: res.geometry.location.lng,
-            icon: res.icon.clone(),
-            photo: res
-                .photos
-                .as_ref()
-                .unwrap()
-                .first()
-                .unwrap()
-                .photo_reference
-                .clone(),
-            rating_star: Some(0),
-            rating: res.rating,
-            user_ratings_total: res.user_ratings_total,
-            vicinity: res.vicinity.clone(),
-            price_level: res.price_level,
-        }
-    }
 }
 
 #[derive(Deserialize, Debug)]
@@ -68,6 +45,28 @@ pub struct ResultItem {
 }
 
 impl ResultItem {
+    pub fn upsert_params(&self) -> UpsertParams {
+        UpsertParams {
+            place_id: self.place_id.clone(),
+            name: self.name.clone(),
+            lat: self.geometry.location.lat,
+            lng: self.geometry.location.lng,
+            icon: self.icon.clone(),
+            photo: self
+                .photos
+                .as_ref()
+                .unwrap()
+                .first()
+                .unwrap()
+                .photo_reference
+                .clone(),
+            rating_star: Some(0),
+            rating: self.rating,
+            user_ratings_total: self.user_ratings_total,
+            vicinity: self.vicinity.clone(),
+            price_level: self.price_level,
+        }
+    }
     pub fn business_status(&self) -> String {
         self.business_status.clone().unwrap_or("".to_string())
     }

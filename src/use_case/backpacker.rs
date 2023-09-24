@@ -67,7 +67,7 @@ impl<R: GooglePlaceIdsRepository + Send + Sync> BackpackerUseCase<R> for ImplBac
                 match near_by_search_data.first() {
                     Ok(first) => {
                         // google_place_idsテーブルにデータを挿入
-                        let _ = repo.upsert(conn, near_by_search_data.upsert_params(first));
+                        let _ = repo.upsert(conn, first.upsert_params());
                         Ok(response::backpacker::Response::new(
                             &first_geo,
                             first,
