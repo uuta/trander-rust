@@ -64,8 +64,8 @@ impl<R: GooglePlaceIdsRepository + Send + Sync> NearBySearchUseCase<R> for ImplN
                         &first_geo,
                         first,
                         &mut location_service,
-                        p.lng,
-                        p.lat,
+                        first.lng(),
+                        first.lat(),
                     )),
                     _ => {
                         return Err(HttpError {

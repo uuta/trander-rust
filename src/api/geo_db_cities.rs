@@ -53,6 +53,12 @@ impl City {
     pub fn country_code(&self) -> String {
         self.country_code.clone()
     }
+    pub fn lat(&self) -> f64 {
+        self.latitude
+    }
+    pub fn lng(&self) -> f64 {
+        self.longitude
+    }
 }
 
 pub async fn geo_db_cities<A: ApiHandler + Send + Sync>(
@@ -95,6 +101,7 @@ pub async fn geo_db_cities<A: ApiHandler + Send + Sync>(
 pub async fn geo_db_cities_by_country_code<A: ApiHandler + Send + Sync>(
     api: &A,
     country_ids: &str,
+    name_prefix: &str,
     limit: &str,
 ) -> Result<Data, HttpError> {
     dotenv().ok();
@@ -114,6 +121,7 @@ pub async fn geo_db_cities_by_country_code<A: ApiHandler + Send + Sync>(
 
     let params = [
         ("countryIds".to_string(), country_ids.to_string()),
+        ("namePrefix".to_string(), name_prefix.to_string()),
         ("limit".to_string(), limit.to_string()),
     ];
     let data = api
@@ -211,7 +219,7 @@ mod tests {
             }"#
             .to_string())
         });
-        let result = geo_db_cities_by_country_code(&mock_api, "US", "100").await;
+        let result = geo_db_cities_by_country_code(&mock_api, "US", "a", "100").await;
         assert!(result.is_ok());
         let res = result.unwrap();
         let first = res.first();

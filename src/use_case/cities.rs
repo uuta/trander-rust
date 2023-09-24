@@ -49,13 +49,12 @@ impl<R: GooglePlaceIdsRepository + Send + Sync> CitiesUseCase<R> for ImplCitiesU
         );
         location_service.gen();
         let geo_db_cities_data = geo_db_cities(&ImplApiHandler, &location_service.format()).await?;
-        let first_geo_db_cities_data = geo_db_cities_data.first();
-        match first_geo_db_cities_data {
-            Some(geo_db_cities_data) => {
+        match geo_db_cities_data.first() {
+            Some(first_geo) => {
                 let near_by_search_data = near_by_search(
                     &ImplApiHandler,
                     &location_service.concat(),
-                    &geo_db_cities_data.city_name(),
+                    &first_geo.city_name(),
                 )
                 .await?;
                 match near_by_search_data.first() {
@@ -63,11 +62,11 @@ impl<R: GooglePlaceIdsRepository + Send + Sync> CitiesUseCase<R> for ImplCitiesU
                         // google_place_idsテーブルにデータを挿入
                         let _ = repo.upsert(conn, near_by_search_data.upsert_params(first));
                         Ok(response::cities::Response::new(
-                            &geo_db_cities_data,
+                            &first_geo,
                             first,
                             &mut location_service,
-                            p.lng,
-                            p.lat,
+                            first.lng(),
+                            first.lat(),
                         ))
                     }
                     _ => {
