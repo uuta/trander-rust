@@ -1,4 +1,4 @@
-use crate::api::geo_db_cities::Data as GeoDbCitiesData;
+use crate::api::geo_db_cities::City;
 use crate::api::near_by_search::ResultItem as NearBySearchResultItem;
 use crate::service::location::{ImplLocationService, LocationService};
 use serde::Serialize;
@@ -20,7 +20,7 @@ pub struct Response {
 
 impl Response {
     pub fn new(
-        geo_db_cities_data: &GeoDbCitiesData,
+        geo_db_cities_data: &City,
         near_by_search: &NearBySearchResultItem,
         location_service: &mut ImplLocationService,
         lng: f64,

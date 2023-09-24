@@ -50,18 +50,31 @@ impl<R: GooglePlaceIdsRepository + Send + Sync> NearBySearchUseCase<R> for ImplN
         location_service.gen();
         let near_by_search_data =
             near_by_search(&ImplApiHandler, &location_service.concat(), &p.keyword).await?;
-        let geo_db_cities_data = geo_db_cities(&ImplApiHandler, &location_service.format()).await?;
         match near_by_search_data.first() {
             Ok(first) => {
                 // google_place_idsテーブルにデータを挿入
                 let _ = repo.upsert(conn, near_by_search_data.upsert_params(first));
-                Ok(response::near_by_search::Response::new(
-                    &geo_db_cities_data,
-                    first,
-                    &mut location_service,
-                    p.lng,
-                    p.lat,
-                ))
+
+                // geo_db_citiesからデータを取得
+                let geo_db_cities_data =
+                    geo_db_cities(&ImplApiHandler, &location_service.format()).await?;
+
+                match geo_db_cities_data.first() {
+                    Some(first_geo) => Ok(response::near_by_search::Response::new(
+                        &first_geo,
+                        first,
+                        &mut location_service,
+                        p.lng,
+                        p.lat,
+                    )),
+                    _ => {
+                        return Err(HttpError {
+                            cause: None,
+                            message: Some("Item not found".to_string()),
+                            error_type: HttpErrorType::NotFoundError,
+                        })
+                    }
+                }
             }
             _ => {
                 return Err(HttpError {
