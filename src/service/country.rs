@@ -38,7 +38,8 @@ pub struct ImplCountryService {
 impl ImplCountryService {
     pub fn new() -> Result<Self, HttpError> {
         // Read the contents of the file into a string
-        let file_contents = fs::read_to_string("country.json").map_err(|e| HttpError::from(e))?;
+        let file_contents = fs::read_to_string("src/service/country/country.json")
+            .map_err(|e| HttpError::from(e))?;
 
         // Deserialize the JSON into a HashMap
         let countries: HashMap<String, Country> =

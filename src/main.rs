@@ -32,6 +32,7 @@ async fn main() -> std::io::Result<()> {
             .service(handler::index::index)
             .service(handler::cities::get)
             .service(handler::near_by_search::get)
+            .service(handler::backpacker::get)
     })
     .bind((SERVER_IP, PORT))?
     .run()
