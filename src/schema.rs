@@ -3,16 +3,22 @@
 diesel::table! {
     google_place_ids (id) {
         id -> Unsigned<Bigint>,
+        #[max_length = 255]
         place_id -> Varchar,
+        #[max_length = 255]
         name -> Varchar,
+        #[max_length = 255]
         icon -> Varchar,
         rating -> Nullable<Double>,
+        #[max_length = 255]
         photo -> Nullable<Varchar>,
+        #[max_length = 255]
         vicinity -> Nullable<Varchar>,
         user_ratings_total -> Nullable<Integer>,
         price_level -> Nullable<Integer>,
         lat -> Decimal,
         lng -> Decimal,
+        #[max_length = 255]
         rating_star -> Nullable<Varchar>,
         created_at -> Timestamp,
         updated_at -> Nullable<Timestamp>,
@@ -23,7 +29,9 @@ diesel::table! {
 diesel::table! {
     m_countries (id) {
         id -> Unsigned<Bigint>,
+        #[max_length = 255]
         country_code -> Varchar,
+        #[max_length = 255]
         name -> Varchar,
         exist_in_geo_db_cities -> Bool,
         created_at -> Nullable<Timestamp>,
@@ -34,6 +42,7 @@ diesel::table! {
 diesel::table! {
     m_directions (direction_id) {
         direction_id -> Unsigned<Integer>,
+        #[max_length = 255]
         direction_name -> Varchar,
         min_angle -> Double,
         max_angle -> Double,
@@ -47,6 +56,7 @@ diesel::table! {
     m_exist_country_prefixes (id) {
         id -> Unsigned<Bigint>,
         country_id -> Unsigned<Bigint>,
+        #[max_length = 255]
         prefix -> Varchar,
         exist -> Bool,
         created_at -> Nullable<Timestamp>,
@@ -57,6 +67,7 @@ diesel::table! {
 diesel::table! {
     m_ratings (id) {
         id -> Unsigned<Integer>,
+        #[max_length = 255]
         class_name -> Varchar,
         min -> Double,
         max -> Double,
@@ -95,8 +106,8 @@ diesel::table! {
         id -> Unsigned<Integer>,
         user_id -> Unsigned<Bigint>,
         request_limit -> Unsigned<Bigint>,
-        first_request_at -> Datetime,
-        created_at -> Nullable<Timestamp>,
+        first_requested_at -> Datetime,
+        created_at -> Timestamp,
         updated_at -> Nullable<Timestamp>,
     }
 }
@@ -130,12 +141,17 @@ diesel::table! {
 diesel::table! {
     users (id) {
         id -> Unsigned<Bigint>,
+        #[max_length = 255]
         unique_id -> Nullable<Varchar>,
         name -> Nullable<Text>,
+        #[max_length = 255]
         email -> Nullable<Varchar>,
         email_verified_at -> Nullable<Timestamp>,
+        #[max_length = 255]
         password -> Nullable<Varchar>,
+        #[max_length = 255]
         avatar -> Nullable<Varchar>,
+        #[max_length = 100]
         remember_token -> Nullable<Varchar>,
         created_at -> Nullable<Timestamp>,
         updated_at -> Nullable<Timestamp>,
