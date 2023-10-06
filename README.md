@@ -2,8 +2,8 @@
 
 ```.sh
 # For dev environment
-$ ./run_migration.sh dev
+$ docker-compose exec app ./run_migration.sh dev
 
 # For test environment
-$ ./run_migration.sh test
+$ docker-compose exec app ./run_migration.sh test
 ```
