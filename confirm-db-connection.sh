@@ -21,5 +21,6 @@ done
 
 >&2 echo "MySQL is up - executing command"
 $cmd
+./run_migration.sh dev 
 ./run_migration.sh test
 
