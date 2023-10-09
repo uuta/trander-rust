@@ -25,9 +25,8 @@ async fn test_get() {
                 NaiveDateTime::parse_from_str("2023-03-04 00:00:00", "%Y-%m-%d %H:%M:%S").unwrap(),
             ),
             password: Some("test".to_string()),
-            created_at: Some(
-                NaiveDateTime::parse_from_str("2023-03-04 00:00:00", "%Y-%m-%d %H:%M:%S").unwrap(),
-            ),
+            created_at: NaiveDateTime::parse_from_str("2023-03-04 00:00:00", "%Y-%m-%d %H:%M:%S")
+                .unwrap(),
         };
 
         let new_request_limit = NewRequestLimit {
@@ -86,9 +85,8 @@ async fn test_decrement() {
                 NaiveDateTime::parse_from_str("2023-03-04 00:00:00", "%Y-%m-%d %H:%M:%S").unwrap(),
             ),
             password: Some("test".to_string()),
-            created_at: Some(
-                NaiveDateTime::parse_from_str("2023-03-04 00:00:00", "%Y-%m-%d %H:%M:%S").unwrap(),
-            ),
+            created_at: NaiveDateTime::parse_from_str("2023-03-04 00:00:00", "%Y-%m-%d %H:%M:%S")
+                .unwrap(),
         };
 
         let new_request_limit = NewRequestLimit {
@@ -148,9 +146,8 @@ async fn test_decrement_if_zero() {
                 NaiveDateTime::parse_from_str("2023-03-04 00:00:00", "%Y-%m-%d %H:%M:%S").unwrap(),
             ),
             password: Some("test".to_string()),
-            created_at: Some(
-                NaiveDateTime::parse_from_str("2023-03-04 00:00:00", "%Y-%m-%d %H:%M:%S").unwrap(),
-            ),
+            created_at: NaiveDateTime::parse_from_str("2023-03-04 00:00:00", "%Y-%m-%d %H:%M:%S")
+                .unwrap(),
         };
 
         let new_request_limit = NewRequestLimit {

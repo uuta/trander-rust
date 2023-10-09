@@ -98,13 +98,10 @@ diesel::table! {
         email_verified_at -> Nullable<Timestamp>,
         #[max_length = 255]
         password -> Nullable<Varchar>,
-        #[max_length = 255]
-        avatar -> Nullable<Varchar>,
         #[max_length = 100]
         remember_token -> Nullable<Varchar>,
-        created_at -> Nullable<Timestamp>,
-        updated_at -> Nullable<Timestamp>,
-        check_registration -> Bool,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
     }
 }
 

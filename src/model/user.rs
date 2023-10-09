@@ -11,13 +11,10 @@ pub struct User {
     pub email: Option<String>,
     pub email_verified_at: Option<NaiveDateTime>,
     pub password: Option<String>,
-    pub avatar: Option<String>,
     pub remember_token: Option<String>,
-    pub created_at: Option<NaiveDateTime>,
+    pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
-    pub check_registration: bool,
 }
-
 
 #[derive(Debug, Deserialize, Insertable)]
 #[diesel(table_name = users)]
@@ -27,6 +24,5 @@ pub struct NewUser {
     pub email: Option<String>,
     pub email_verified_at: Option<NaiveDateTime>,
     pub password: Option<String>,
-    pub created_at: Option<NaiveDateTime>,
+    pub created_at: NaiveDateTime,
 }
-
