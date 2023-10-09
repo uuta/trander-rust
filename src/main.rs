@@ -1,11 +1,10 @@
-use crate::repository::request_limits::{ImplRequestLimitsRepository, RequestLimitsRepository};
 use actix_web::web::Data;
 use actix_web::{App, HttpServer};
 use tracing::Level;
 use tracing_subscriber;
 use trander_rust::db;
 use trander_rust::handler;
-use trander_rust::middleware::post_processing::decrement;
+use trander_rust::middleware;
 
 extern crate diesel;
 
@@ -28,7 +27,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .app_data(Data::new(pool.clone()))
-            // .wrap_fn(decrement)
+            .wrap(middleware::post_processing::PostProcessing)
             .service(handler::settings::get)
             .service(handler::index::index)
             .service(handler::cities::get)

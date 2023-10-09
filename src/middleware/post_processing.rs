@@ -4,7 +4,8 @@ use crate::info_request_log;
 use crate::repository::request_limits::{ImplRequestLimitsRepository, RequestLimitsRepository};
 use actix_web::{
     dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
-    Error, HttpResponse,
+    web::Data,
+    Error,
 };
 use std::{
     future::{ready, Future, Ready},
@@ -65,18 +66,28 @@ where
                     message: None,
                 })
             })
-            .and_then(|uid_str| Ok(uid_str.parse::<u64>().map_err(|e| HttpError::from(e))));
+            .and_then(|uid_str| {
+                uid_str
+                    .parse::<u64>()
+                    .map_err(|e| Error::from(HttpError::from(e)))
+            });
         let fut = self.service.call(req);
         Box::pin(async move {
             match user_id_result {
                 Ok(user_id) => {
                     let res = fut.await?;
+                    if let Some(db) = res.request().app_data::<Data<db::DbPool>>() {
+                        if let Ok(mut conn) = db.get().map_err(|e| HttpError::from(e)) {
+                            let repo = ImplRequestLimitsRepository;
+                            repo.decrement(user_id, &mut conn)
+                                .map_err(|e| HttpError::from(e))?;
+                        }
+                    }
                     Ok(res)
                 }
-                Err(e) => {
-                    let error_response = HttpResponse::InternalServerError().finish();
-                    Ok(req.error_response(error_response))
-                }
+                Err(_e) => Err(actix_web::error::ErrorInternalServerError(
+                    "Internal Server Error",
+                )),
             }
         })
     }
