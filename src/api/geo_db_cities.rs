@@ -24,6 +24,7 @@ impl Data {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
+#[allow(dead_code)]
 pub struct City {
     id: i32,
     wiki_data_id: Option<String>,

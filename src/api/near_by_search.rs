@@ -23,6 +23,7 @@ impl Data {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct ResultItem {
     business_status: Option<String>,
     geometry: Geometry,
@@ -104,6 +105,7 @@ impl ResultItem {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 struct Geometry {
     location: Location,
     viewport: Option<Viewport>,
@@ -116,6 +118,7 @@ struct Location {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct Photo {
     height: Option<u32>,
     width: Option<u32>,
@@ -124,6 +127,7 @@ pub struct Photo {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 struct Viewport {
     northeast: Option<Location>,
     southwest: Option<Location>,
