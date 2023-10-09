@@ -17,6 +17,7 @@ pub enum HttpErrorType {
     HeaderParseError,
     JsonParseError,
     IOError,
+    AuthError,
 }
 
 // Struct type is already defined Option<String> and HttpErrorType. We can also define later.
@@ -82,6 +83,11 @@ impl HttpError {
             HttpError {
                 cause: Some(cause),
                 message: None,
+                error_type: HttpErrorType::AuthError,
+            } => cause.clone(),
+            HttpError {
+                cause: Some(cause),
+                message: None,
                 error_type: HttpErrorType::IOError,
             } => cause.clone(),
             _ => "An unexpected error has occured".to_string(),
@@ -117,6 +123,7 @@ impl ResponseError for HttpError {
             HttpErrorType::HeaderParseError => StatusCode::BAD_REQUEST,
             HttpErrorType::JsonParseError => StatusCode::BAD_REQUEST,
             HttpErrorType::IOError => StatusCode::INTERNAL_SERVER_ERROR,
+            HttpErrorType::AuthError => StatusCode::UNAUTHORIZED,
         }
     }
 
@@ -194,12 +201,32 @@ impl From<serde_json::Error> for HttpError {
     }
 }
 
+impl From<std::num::ParseIntError> for HttpError {
+    fn from(error: std::num::ParseIntError) -> HttpError {
+        HttpError {
+            message: None,
+            cause: Some(error.to_string()),
+            error_type: HttpErrorType::JsonParseError,
+        }
+    }
+}
+
 impl From<std::io::Error> for HttpError {
     fn from(error: std::io::Error) -> HttpError {
         HttpError {
             message: None,
             cause: Some(error.to_string()),
             error_type: HttpErrorType::IOError,
+        }
+    }
+}
+
+impl From<actix_web::Error> for HttpError {
+    fn from(error: actix_web::Error) -> HttpError {
+        HttpError {
+            message: Some(error.to_string()),
+            cause: None, // or if you have more detailed cause you can put it here
+            error_type: HttpErrorType::NetworkError,
         }
     }
 }
