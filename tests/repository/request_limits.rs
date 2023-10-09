@@ -114,7 +114,7 @@ async fn test_decrement() {
             .expect("Failed to insert new request limit");
 
         let user_id_value = 1;
-        repo.decrement(user_id_value, conn);
+        repo.decrement(user_id_value, conn).unwrap();
         let result = repo.get(user_id_value, conn);
         assert!(result.is_ok());
 
@@ -176,7 +176,7 @@ async fn test_decrement_if_zero() {
             .expect("Failed to insert new request limit");
 
         let user_id_value = 1;
-        repo.decrement(user_id_value, conn);
+        repo.decrement(user_id_value, conn).unwrap();
         let result = repo.get(user_id_value, conn);
         assert!(result.is_ok());
 

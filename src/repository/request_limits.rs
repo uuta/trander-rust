@@ -38,9 +38,13 @@ impl RequestLimitsRepository for ImplRequestLimitsRepository {
         user_id_value: u64,
         conn: &mut MysqlConnection,
     ) -> Result<(), diesel::result::Error> {
-        diesel::update(request_limits.filter(user_id.eq(user_id_value)))
-            .set(request_limit.eq(request_limit - 1))
-            .execute(conn)
-            .map(|_| ())
+        diesel::update(
+            request_limits
+                .filter(user_id.eq(user_id_value))
+                .filter(request_limit.gt(0)),
+        )
+        .set(request_limit.eq(request_limit - 1))
+        .execute(conn)
+        .map(|_| ())
     }
 }
