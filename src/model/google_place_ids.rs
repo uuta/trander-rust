@@ -19,8 +19,7 @@ pub struct GooglePlaceIds {
     pub lng: BigDecimal,
     pub rating_star: Option<String>,
     pub created_at: NaiveDateTime,
-    pub updated_at: Option<NaiveDateTime>,
-    pub deleted_at: Option<NaiveDateTime>,
+    pub updated_at: NaiveDateTime,
 }
 
 #[derive(Debug, Deserialize, Insertable)]
@@ -38,5 +37,5 @@ pub struct NewGooglePlaceIds {
     pub lng: BigDecimal,
     pub rating_star: Option<String>,
     pub created_at: NaiveDateTime,
-    pub updated_at: Option<NaiveDateTime>,
+    pub updated_at: NaiveDateTime,
 }

@@ -24,5 +24,4 @@ pub struct NewUser {
     pub email: Option<String>,
     pub email_verified_at: Option<NaiveDateTime>,
     pub password: Option<String>,
-    pub created_at: NaiveDateTime,
 }

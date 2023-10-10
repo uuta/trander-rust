@@ -20,9 +20,8 @@ diesel::table! {
         lng -> Decimal,
         #[max_length = 255]
         rating_star -> Nullable<Varchar>,
-        created_at -> Timestamp,
-        updated_at -> Nullable<Timestamp>,
-        deleted_at -> Nullable<Timestamp>,
+        created_at -> Datetime,
+        updated_at -> Datetime,
     }
 }
 
@@ -33,9 +32,8 @@ diesel::table! {
         class_name -> Varchar,
         min -> Double,
         max -> Double,
-        created_at -> Nullable<Timestamp>,
-        updated_at -> Nullable<Timestamp>,
-        deleted_at -> Nullable<Timestamp>,
+        created_at -> Datetime,
+        updated_at -> Datetime,
     }
 }
 
@@ -44,9 +42,8 @@ diesel::table! {
         id -> Unsigned<Bigint>,
         user_id -> Unsigned<Bigint>,
         type_id -> Integer,
-        created_at -> Nullable<Timestamp>,
-        updated_at -> Timestamp,
-        deleted_at -> Nullable<Timestamp>,
+        created_at -> Datetime,
+        updated_at -> Datetime,
     }
 }
 
@@ -56,8 +53,8 @@ diesel::table! {
         user_id -> Unsigned<Bigint>,
         request_limit -> Unsigned<Bigint>,
         first_requested_at -> Datetime,
-        created_at -> Timestamp,
-        updated_at -> Nullable<Timestamp>,
+        created_at -> Datetime,
+        updated_at -> Datetime,
     }
 }
 
@@ -68,9 +65,8 @@ diesel::table! {
         min_distance -> Integer,
         max_distance -> Integer,
         direction_type -> Smallint,
-        created_at -> Nullable<Timestamp>,
-        updated_at -> Timestamp,
-        deleted_at -> Nullable<Timestamp>,
+        created_at -> Datetime,
+        updated_at -> Datetime,
     }
 }
 
@@ -81,9 +77,8 @@ diesel::table! {
         min_distance -> Integer,
         max_distance -> Integer,
         direction_type -> Smallint,
-        created_at -> Nullable<Timestamp>,
-        updated_at -> Timestamp,
-        deleted_at -> Nullable<Timestamp>,
+        created_at -> Datetime,
+        updated_at -> Datetime,
     }
 }
 
@@ -100,8 +95,8 @@ diesel::table! {
         password -> Nullable<Varchar>,
         #[max_length = 100]
         remember_token -> Nullable<Varchar>,
-        created_at -> Timestamp,
-        updated_at -> Timestamp,
+        created_at -> Datetime,
+        updated_at -> Datetime,
     }
 }
 

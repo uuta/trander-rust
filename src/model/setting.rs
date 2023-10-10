@@ -10,9 +10,8 @@ pub struct Setting {
     pub min_distance: i32,
     pub max_distance: i32,
     pub direction_type: i16,
-    pub created_at: Option<NaiveDateTime>,
+    pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
-    pub deleted_at: Option<NaiveDateTime>,
 }
 
 #[derive(Debug, Deserialize, Insertable)]
@@ -22,5 +21,5 @@ pub struct NewSetting {
     pub min_distance: i32,
     pub max_distance: i32,
     pub direction_type: i16,
-    pub created_at: Option<NaiveDateTime>,
+    pub created_at: NaiveDateTime,
 }

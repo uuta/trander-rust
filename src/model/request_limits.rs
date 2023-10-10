@@ -10,7 +10,7 @@ pub struct RequestLimit {
     pub request_limit: u64,
     pub first_requested_at: NaiveDateTime,
     pub created_at: NaiveDateTime,
-    pub updated_at: Option<NaiveDateTime>,
+    pub updated_at: NaiveDateTime,
 }
 
 #[derive(Debug, Deserialize, Insertable)]
