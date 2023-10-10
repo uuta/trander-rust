@@ -17,14 +17,10 @@ async fn test_get_ok() {
         min_distance: 0,
         max_distance: 100,
         direction_type: 0,
-        created_at: Some(
-            NaiveDateTime::parse_from_str("2023-03-04 00:00:00", "%Y-%m-%d %H:%M:%S").unwrap(),
-        ),
+        created_at: NaiveDateTime::parse_from_str("2023-03-04 00:00:00", "%Y-%m-%d %H:%M:%S")
+            .unwrap(),
         updated_at: NaiveDateTime::parse_from_str("2023-03-04 00:00:00", "%Y-%m-%d %H:%M:%S")
             .unwrap(),
-        deleted_at: Some(
-            NaiveDateTime::parse_from_str("2023-03-04 00:00:00", "%Y-%m-%d %H:%M:%S").unwrap(),
-        ),
     }];
     let settings_clone = settings.clone();
     mock_repo.expect_get().return_once(move |_, _| Ok(settings));
