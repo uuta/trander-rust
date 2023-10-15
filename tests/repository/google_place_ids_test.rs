@@ -14,8 +14,11 @@ use trander_rust::schema::google_place_ids as google_place_ids_schema;
 #[cfg(test)]
 mod tests {
     use super::*;
+    // Import this to run tests in serial
+    use serial_test::serial;
 
     #[actix_web::test]
+    #[serial]
     async fn test_upsert() {
         let pool = get_test_db_pool().await;
         let mut conn = pool.get().unwrap();

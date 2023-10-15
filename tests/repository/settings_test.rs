@@ -14,8 +14,11 @@ use trander_rust::schema::{settings as settings_schema, users as users_schema};
 #[cfg(test)]
 mod tests {
     use super::*;
+    // Import this to run tests in serial
+    use serial_test::serial;
 
     #[actix_web::test]
+    #[serial]
     async fn test_get() {
         let pool = get_test_db_pool().await;
         let mut conn = pool.get().unwrap();
@@ -75,6 +78,7 @@ mod tests {
     }
 
     #[actix_web::test]
+    #[serial]
     async fn test_update() {
         let pool = get_test_db_pool().await;
         let mut conn = pool.get().unwrap();

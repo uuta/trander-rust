@@ -13,8 +13,11 @@ use trander_rust::schema::{request_limits as request_limits_schema, users as use
 #[cfg(test)]
 mod tests {
     use super::*;
+    // Import this to run tests in serial
+    use serial_test::serial;
 
     #[actix_web::test]
+    #[serial]
     async fn test_get() {
         let pool = get_test_db_pool().await;
         let mut conn = pool.get().unwrap();
@@ -77,6 +80,7 @@ mod tests {
     }
 
     #[actix_web::test]
+    #[serial]
     async fn test_decrement() {
         let pool = get_test_db_pool().await;
         let mut conn = pool.get().unwrap();
@@ -140,6 +144,7 @@ mod tests {
     }
 
     #[actix_web::test]
+    #[serial]
     async fn test_decrement_if_zero() {
         let pool = get_test_db_pool().await;
         let mut conn = pool.get().unwrap();
