@@ -28,6 +28,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .app_data(Data::new(pool.clone()))
             .wrap(middleware::post_processing::PostProcessing)
+            .wrap(middleware::jwt::JWTProcessing)
             .service(handler::settings::get)
             .service(handler::index::index)
             .service(handler::cities::get)
