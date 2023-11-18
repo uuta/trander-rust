@@ -29,4 +29,6 @@ validator = "0.16.1"
 r2d2 = "0.8.10"
 diesel_cli = "2.1.1"
 serial_test = "2.0.0"
-jsonwebtoken = "9.1.0"
+# disable the default feature `use_pem`
+# https://github.com/Keats/jsonwebtoken#installation
+jsonwebtoken = {version = "9.1.0", default-features = false }

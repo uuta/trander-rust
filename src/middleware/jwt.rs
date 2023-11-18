@@ -4,8 +4,10 @@ use actix_web::{
     dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
     Error,
 };
+use jsonwebtoken::errors::ErrorKind;
 use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use serde::Deserialize;
+use serde::Serialize;
 use std::env;
 use std::{
     future::{ready, Future, Ready},
@@ -42,11 +44,9 @@ pub struct JWTMiddleware<S> {
 /// https://github.com/Keats/jsonwebtoken#claims
 /// TODO:
 /// Add or remove fields according to your needs
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 #[allow(dead_code)]
 struct JWTClaims {
-    sub: String,
-    company: String,
     exp: usize,
 }
 
@@ -87,22 +87,77 @@ where
                 Err(e) => return Err(Error::from(HttpError::from(e))),
             };
 
-            let validation = Validation::new(Algorithm::HS256); // 使用するアルゴリズムに応じて変更
-
+            info!("token: {}", token);
+            info!("secret: {}", secret);
             // JWTのデコードと検証
             match decode::<JWTClaims>(
                 &token,
                 &DecodingKey::from_secret(secret.as_ref()),
-                &validation,
+                &Validation::new(Algorithm::HS512), // 使用するアルゴリズムに応じて変更
             ) {
                 Ok(c) => c,
-                Err(_) => {
-                    return Err(Error::from(HttpError {
-                        cause: None,
-                        message: Some("No valid token found".to_string()),
-                        error_type: HttpErrorType::AuthError,
-                    }))
-                }
+                Err(err) => match *err.kind() {
+                    ErrorKind::InvalidToken => {
+                        return Err(Error::from(HttpError {
+                            cause: None,
+                            message: Some("Requested with invalid token".to_string()),
+                            error_type: HttpErrorType::AuthError,
+                        }))
+                    }
+                    ErrorKind::InvalidIssuer => {
+                        return Err(Error::from(HttpError {
+                            cause: None,
+                            message: Some("Requested with invalid issuer".to_string()),
+                            error_type: HttpErrorType::AuthError,
+                        }))
+                    }
+                    // INFO: When I requested with a token which is encoded Base64, this error occurred.
+                    ErrorKind::InvalidSignature => {
+                        return Err(Error::from(HttpError {
+                            cause: None,
+                            message: Some("Requested with invalid signature".to_string()),
+                            error_type: HttpErrorType::AuthError,
+                        }))
+                    }
+                    ErrorKind::InvalidEcdsaKey => {
+                        return Err(Error::from(HttpError {
+                            cause: None,
+                            message: Some("Requested with invalid ecdsa key".to_string()),
+                            error_type: HttpErrorType::AuthError,
+                        }))
+                    }
+                    ErrorKind::InvalidAudience => {
+                        return Err(Error::from(HttpError {
+                            cause: None,
+                            message: Some("Requested with invalid audience".to_string()),
+                            error_type: HttpErrorType::AuthError,
+                        }))
+                    }
+                    ErrorKind::InvalidSubject => {
+                        return Err(Error::from(HttpError {
+                            cause: None,
+                            message: Some("Requested with invalid subject".to_string()),
+                            error_type: HttpErrorType::AuthError,
+                        }))
+                    }
+                    _ => {
+                        return Err(Error::from(HttpError {
+                            cause: None,
+                            message: Some("Error occurred".to_string()),
+                            error_type: HttpErrorType::AuthError,
+                        }))
+                    }
+                    // ErrorKind::InvalidRsaKey(String),
+                    // ErrorKind::RsaFailedSigning,
+                    // ErrorKind::InvalidAlgorithmName,
+                    // ErrorKind::InvalidKeyFormat,
+                    // ErrorKind::MissingRequiredClaim(String),
+                    // ErrorKind::ExpiredSignature,
+                    // ErrorKind::ImmatureSignature,
+                    // ErrorKind::InvalidAlgorithm,
+                    // ErrorKind::MissingAlgorithm,
+                    // ErrorKind::Base64(base64::DecodeError),
+                },
             };
             fut.await
         })
@@ -112,8 +167,8 @@ where
 fn extract_bearer_token(req: &ServiceRequest) -> Result<String, HttpError> {
     if let Some(auth_header) = req.headers().get("Authorization") {
         if let Ok(auth_str) = auth_header.to_str() {
-            if auth_str.starts_with("Bearer ") {
-                let token = &auth_str["Bearer ".len()..];
+            if auth_str.to_lowercase().starts_with("bearer ") {
+                let token = auth_str["Bearer ".len()..].trim();
                 return Ok(token.to_string());
             }
         }
