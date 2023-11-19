@@ -1,5 +1,6 @@
 use crate::error::http_error::{HttpError, HttpErrorType};
 use crate::info_request_log;
+use actix_web::HttpMessage;
 use actix_web::{
     dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
     Error,
@@ -48,6 +49,7 @@ pub struct JWTMiddleware<S> {
 #[allow(dead_code)]
 struct JWTClaims {
     exp: usize,
+    email: String,
 }
 
 type LocalBoxFuture<T> = Pin<Box<dyn Future<Output = T> + 'static>>;
@@ -66,6 +68,7 @@ where
     forward_ready!(service);
 
     fn call(&self, req: ServiceRequest) -> Self::Future {
+        info_request_log!();
         let token_result = extract_bearer_token(&req);
         let secret = match env::var("SUPABASE_JWT_SECRET") {
             Ok(s) => s,
@@ -79,73 +82,71 @@ where
                 })
             }
         };
-        let fut = self.service.call(req);
-        Box::pin(async move {
-            info_request_log!();
-            let token = match token_result {
-                Ok(t) => t,
-                Err(e) => return Err(Error::from(HttpError::from(e))),
-            };
-
-            info!("token: {}", token);
-            info!("secret: {}", secret);
-            // JWTのデコードと検証
-            match decode::<JWTClaims>(
-                &token,
-                &DecodingKey::from_secret(secret.as_ref()),
-                &Validation::new(Algorithm::HS512), // 使用するアルゴリズムに応じて変更
-            ) {
-                Ok(c) => c,
-                Err(err) => match *err.kind() {
+        let token = match token_result {
+            Ok(t) => t,
+            Err(e) => return Box::pin(async { Err(Error::from(HttpError::from(e))) }),
+        };
+        // JWTのデコードと検証
+        match decode::<JWTClaims>(
+            &token,
+            &DecodingKey::from_secret(secret.as_ref()),
+            &Validation::new(Algorithm::HS512), // 使用するアルゴリズムに応じて変更
+        ) {
+            Ok(c) => {
+                info!("email: {}", c.claims.email);
+                // TODO: リクエストに追加しているがmiddlewreで取得できない
+                req.extensions_mut().insert(c.claims.email);
+            }
+            Err(err) => match *err.kind() {
                     ErrorKind::InvalidToken => {
-                        return Err(Error::from(HttpError {
+                        return Box::pin(async {Err(Error::from(HttpError {
                             cause: None,
                             message: Some("Requested with invalid token".to_string()),
                             error_type: HttpErrorType::AuthError,
-                        }))
+                        }))})
                     }
                     ErrorKind::InvalidIssuer => {
-                        return Err(Error::from(HttpError {
+                        return Box::pin(async {Err(Error::from(HttpError {
                             cause: None,
                             message: Some("Requested with invalid issuer".to_string()),
                             error_type: HttpErrorType::AuthError,
-                        }))
+                        }))})
                     }
                     // INFO: When I requested with a token which is encoded Base64, this error occurred.
                     ErrorKind::InvalidSignature => {
-                        return Err(Error::from(HttpError {
+                        return Box::pin(async {Err(Error::from(HttpError {
                             cause: None,
                             message: Some("Requested with invalid signature".to_string()),
                             error_type: HttpErrorType::AuthError,
-                        }))
+                        }))})
                     }
                     ErrorKind::InvalidEcdsaKey => {
-                        return Err(Error::from(HttpError {
+                        return Box::pin(async {Err(Error::from(HttpError {
                             cause: None,
                             message: Some("Requested with invalid ecdsa key".to_string()),
                             error_type: HttpErrorType::AuthError,
-                        }))
+                        }))})
                     }
                     ErrorKind::InvalidAudience => {
-                        return Err(Error::from(HttpError {
+                        return Box::pin(async {Err(Error::from(HttpError {
                             cause: None,
                             message: Some("Requested with invalid audience".to_string()),
                             error_type: HttpErrorType::AuthError,
-                        }))
+                        }))})
                     }
                     ErrorKind::InvalidSubject => {
-                        return Err(Error::from(HttpError {
+                        return Box::pin(async {Err(Error::from(HttpError {
                             cause: None,
                             message: Some("Requested with invalid subject".to_string()),
                             error_type: HttpErrorType::AuthError,
-                        }))
+                        }))})
                     }
                     _ => {
-                        return Err(Error::from(HttpError {
+                        return Box::pin(async {Err(Error::from(HttpError {
                             cause: None,
                             message: Some("Error occurred".to_string()),
                             error_type: HttpErrorType::AuthError,
-                        }))
+                        }))})
                     }
                     // ErrorKind::InvalidRsaKey(String),
                     // ErrorKind::RsaFailedSigning,
@@ -158,9 +159,10 @@ where
                     // ErrorKind::MissingAlgorithm,
                     // ErrorKind::Base64(base64::DecodeError),
                 },
-            };
-            fut.await
-        })
+        };
+
+        let fut = self.service.call(req);
+        Box::pin(async move { fut.await })
     }
 }
 
@@ -168,7 +170,7 @@ fn extract_bearer_token(req: &ServiceRequest) -> Result<String, HttpError> {
     if let Some(auth_header) = req.headers().get("Authorization") {
         if let Ok(auth_str) = auth_header.to_str() {
             if auth_str.to_lowercase().starts_with("bearer ") {
-                let token = auth_str["Bearer ".len()..].trim();
+                let token = auth_str["bearer ".len()..].trim(); // この行を修正
                 return Ok(token.to_string());
             }
         }

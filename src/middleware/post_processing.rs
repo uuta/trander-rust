@@ -2,6 +2,7 @@ use crate::db;
 use crate::error::http_error::{HttpError, HttpErrorType};
 use crate::info_request_log;
 use crate::repository::request_limits::{ImplRequestLimitsRepository, RequestLimitsRepository};
+use actix_web::HttpMessage;
 use actix_web::{
     dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
     web::Data,
@@ -56,30 +57,28 @@ where
 
     fn call(&self, req: ServiceRequest) -> Self::Future {
         info_request_log!();
-        let user_id_result = req
-            .match_info()
-            .get("user_id")
+        let email_result = req
+            .extensions()
+            .get::<String>()
             .ok_or_else(|| {
                 Error::from(HttpError {
                     error_type: HttpErrorType::AuthError,
                     cause: None,
-                    message: None,
+                    message: Some(format!("email is not found: {:?}", req.uri())),
                 })
             })
-            .and_then(|uid_str| {
-                uid_str
-                    .parse::<u64>()
-                    .map_err(|e| Error::from(HttpError::from(e)))
-            });
+            .and_then(|email| Ok(email.clone()));
         let fut = self.service.call(req);
         Box::pin(async move {
-            match user_id_result {
-                Ok(user_id) => {
+            info!("email_result: {:?}", email_result);
+            match email_result {
+                Ok(_user_id) => {
                     let res = fut.await?;
                     if let Some(db) = res.request().app_data::<Data<db::DbPool>>() {
                         if let Ok(mut conn) = db.get().map_err(|e| HttpError::from(e)) {
                             let repo = ImplRequestLimitsRepository;
-                            repo.decrement(user_id, &mut conn)
+                            // TODO: とりあえずmock
+                            repo.decrement(1, &mut conn)
                                 .map_err(|e| HttpError::from(e))?;
                         }
                     }
