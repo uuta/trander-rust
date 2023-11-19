@@ -70,7 +70,6 @@ where
             .and_then(|email| Ok(email.clone()));
         let fut = self.service.call(req);
         Box::pin(async move {
-            info!("email_result: {:?}", email_result);
             match email_result {
                 Ok(_user_id) => {
                     let res = fut.await?;

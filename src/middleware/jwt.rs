@@ -96,6 +96,9 @@ where
                 info!("email: {}", c.claims.email);
                 // TODO: リクエストに追加しているがmiddlewreで取得できない
                 req.extensions_mut().insert(c.claims.email);
+                if let Some(email) = req.extensions().get::<String>() {
+                    info!("email2: {}", email);
+                }
             }
             Err(err) => match *err.kind() {
                     ErrorKind::InvalidToken => {
@@ -170,7 +173,7 @@ fn extract_bearer_token(req: &ServiceRequest) -> Result<String, HttpError> {
     if let Some(auth_header) = req.headers().get("Authorization") {
         if let Ok(auth_str) = auth_header.to_str() {
             if auth_str.to_lowercase().starts_with("bearer ") {
-                let token = auth_str["bearer ".len()..].trim(); // この行を修正
+                let token = auth_str["bearer ".len()..].trim();
                 return Ok(token.to_string());
             }
         }

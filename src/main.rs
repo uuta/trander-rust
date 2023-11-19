@@ -27,8 +27,9 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .app_data(Data::new(pool.clone()))
-            .wrap(middleware::jwt::JWTProcessing)
+            // TODO: I'm not sure why it happened but when I switched the order of middleware, PostProcessing works at first
             .wrap(middleware::post_processing::PostProcessing)
+            .wrap(middleware::jwt::JWTProcessing)
             .service(handler::settings::get)
             .service(handler::index::index)
             .service(handler::cities::get)
