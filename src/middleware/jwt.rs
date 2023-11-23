@@ -90,7 +90,7 @@ where
         match decode::<JWTClaims>(
             &token,
             &DecodingKey::from_secret(secret.as_ref()),
-            &Validation::new(Algorithm::HS512), // 使用するアルゴリズムに応じて変更
+            &Validation::new(Algorithm::HS512), // Change algorithm as you like
         ) {
             Ok(c) => {
                 info!("email: {}", c.claims.email);
