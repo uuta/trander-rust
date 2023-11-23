@@ -43,11 +43,6 @@ mod tests {
                     "%Y-%m-%d %H:%M:%S",
                 )
                 .unwrap(),
-                created_at: NaiveDateTime::parse_from_str(
-                    "2023-03-04 00:00:00",
-                    "%Y-%m-%d %H:%M:%S",
-                )
-                .unwrap(),
             };
 
             insert_into(users_schema::table)
@@ -102,11 +97,6 @@ mod tests {
                 user_id: 1,
                 request_limit: 100,
                 first_requested_at: NaiveDateTime::parse_from_str(
-                    "2023-03-04 00:00:00",
-                    "%Y-%m-%d %H:%M:%S",
-                )
-                .unwrap(),
-                created_at: NaiveDateTime::parse_from_str(
                     "2023-03-04 00:00:00",
                     "%Y-%m-%d %H:%M:%S",
                 )
@@ -170,11 +160,6 @@ mod tests {
                     "%Y-%m-%d %H:%M:%S",
                 )
                 .unwrap(),
-                created_at: NaiveDateTime::parse_from_str(
-                    "2023-03-04 00:00:00",
-                    "%Y-%m-%d %H:%M:%S",
-                )
-                .unwrap(),
             };
 
             insert_into(users_schema::table)
@@ -203,6 +188,46 @@ mod tests {
         }) {
             Err(Error::RollbackTransaction) => (),
             Err(e) => panic!("Unexpected error: {}", e),
+            _ => (),
+        }
+    }
+
+    #[actix_web::test]
+    #[serial]
+    async fn test_add() {
+        let pool = get_test_db_pool().await;
+        let mut conn = pool.get().unwrap();
+        let repo = ImplRequestLimitsRepository;
+        let user_id_value = 1;
+
+        match conn.transaction::<_, Error, _>(|conn| {
+            let new_user = NewUser {
+                id: 1,
+                name: Some("test".to_string()),
+                email: Some("aaa@test.com".to_string()),
+                email_verified_at: Some(
+                    NaiveDateTime::parse_from_str("2023-03-04 00:00:00", "%Y-%m-%d %H:%M:%S")
+                        .unwrap(),
+                ),
+                password: Some("test".to_string()),
+            };
+
+            insert_into(users_schema::table)
+                .values(&new_user)
+                .execute(conn)
+                .expect("Failed to insert new user");
+
+            let result = repo.add(conn, &user_id_value);
+            assert!(result.is_ok());
+            assert_eq!(result.unwrap(), 1);
+            // INFO: fix the architecture of the whole test in repository
+            // the repository returns incremented id after rollback transaction
+            // assert_eq!(result.unwrap(), i_u64 + 1);
+
+            Err::<(), diesel::result::Error>(diesel::result::Error::RollbackTransaction)
+        }) {
+            Err(Error::RollbackTransaction) => (), // do nothing for rollback
+            Err(e) => panic!("Unexpected error: {}", e), // panic on other errors
             _ => (),
         }
     }

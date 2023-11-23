@@ -19,5 +19,4 @@ pub struct NewRequestLimit {
     pub user_id: u64,
     pub request_limit: u64,
     pub first_requested_at: NaiveDateTime,
-    pub created_at: NaiveDateTime,
 }
