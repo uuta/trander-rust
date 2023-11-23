@@ -1,5 +1,5 @@
-use crate::from_request::settings::UpdateParams;
-use crate::model::setting::Setting;
+use crate::from_request::settings::{AddParams, UpdateParams};
+use crate::model::setting::{NewSetting, Setting};
 use crate::schema;
 use diesel::prelude::*;
 use diesel::MysqlConnection;
@@ -19,6 +19,13 @@ pub trait SettingsRepository {
         conn: &mut MysqlConnection,
         user_id_value: u64,
         params: UpdateParams,
+    ) -> Result<usize, diesel::result::Error>;
+
+    fn add(
+        &self,
+        conn: &mut MysqlConnection,
+        user_id_value: &u64,
+        params: &AddParams,
     ) -> Result<usize, diesel::result::Error>;
 }
 
@@ -49,5 +56,20 @@ impl SettingsRepository for ImplSettingsRepository {
             ))
             .execute(conn)?;
         Ok(count)
+    }
+
+    fn add(
+        &self,
+        conn: &mut MysqlConnection,
+        user_id_value: &u64,
+        params: &AddParams,
+    ) -> Result<usize, diesel::result::Error> {
+        let insert = NewSetting {
+            user_id: *user_id_value,
+            min_distance: params.min_distance,
+            max_distance: params.max_distance,
+            direction_type: params.direction_type,
+        };
+        diesel::insert_into(settings).values(&insert).execute(conn)
     }
 }

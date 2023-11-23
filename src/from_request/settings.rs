@@ -39,3 +39,10 @@ impl FromRequest for UpdateParams {
         ok(params)
     }
 }
+
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub struct AddParams {
+    pub min_distance: i32,
+    pub max_distance: i32,
+    pub direction_type: i16,
+}
