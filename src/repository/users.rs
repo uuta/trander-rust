@@ -10,14 +10,14 @@ pub trait UsersRepository {
     fn get_by_email(
         &self,
         conn: &mut MysqlConnection,
-        email_value: String,
+        email_value: &String,
     ) -> Result<Vec<User>, diesel::result::Error>;
 
     fn add(
         &self,
         conn: &mut MysqlConnection,
-        email_value: String,
-    ) -> Result<usize, diesel::result::Error>;
+        email_value: &String,
+    ) -> Result<u64, diesel::result::Error>;
 }
 
 pub struct ImplUsersRepository;
@@ -26,7 +26,7 @@ impl UsersRepository for ImplUsersRepository {
     fn get_by_email(
         &self,
         conn: &mut MysqlConnection,
-        email_value: String,
+        email_value: &String,
     ) -> Result<Vec<User>, diesel::result::Error> {
         users.filter(email.eq(email_value)).load::<User>(conn)
     }
@@ -34,10 +34,12 @@ impl UsersRepository for ImplUsersRepository {
     fn add(
         &self,
         conn: &mut MysqlConnection,
-        email_value: String,
-    ) -> Result<usize, diesel::result::Error> {
-        diesel::insert_into(users)
+        email_value: &String,
+    ) -> Result<u64, diesel::result::Error> {
+        let _ = diesel::insert_into(users)
             .values(email.eq(email_value))
-            .execute(conn)
+            .execute(conn);
+
+        users.select(id).order(id.desc()).first(conn)
     }
 }
