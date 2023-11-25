@@ -2,6 +2,7 @@ use crate::db;
 use crate::error::http_error::{HttpError, HttpErrorType};
 use crate::info_request_log;
 use crate::repository::request_limits::{ImplRequestLimitsRepository, RequestLimitsRepository};
+use crate::repository::users::{ImplUsersRepository, UsersRepository};
 use actix_web::HttpMessage;
 use actix_web::{
     dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
@@ -71,13 +72,18 @@ where
         let fut = self.service.call(req);
         Box::pin(async move {
             match email_result {
-                Ok(_user_id) => {
+                Ok(email) => {
                     let res = fut.await?;
                     if let Some(db) = res.request().app_data::<Data<db::DbPool>>() {
                         if let Ok(mut conn) = db.get().map_err(|e| HttpError::from(e)) {
-                            let repo = ImplRequestLimitsRepository;
-                            // TODO: とりあえずmock
-                            repo.decrement(1, &mut conn)
+                            let users_repo = ImplUsersRepository;
+                            let user_res = users_repo
+                                .get_by_email(&mut conn, &email)
+                                .map_err(|e| HttpError::from(e))?;
+
+                            let request_limits_repo = ImplRequestLimitsRepository;
+                            request_limits_repo
+                                .decrement(user_res.id, &mut conn)
                                 .map_err(|e| HttpError::from(e))?;
                         }
                     }

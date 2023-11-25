@@ -41,13 +41,10 @@ mod tests {
                 .expect("Failed to insert new user");
 
             let user_id_value = 1;
-            let results = repo.get_by_email(conn, &email_value);
-            assert!(results.is_ok());
-            assert!(results.as_ref().unwrap().len() == 1);
-            results.unwrap().iter().for_each(|result| {
-                assert_eq!(result.id, user_id_value);
-                assert_eq!(result.email, Some(email_value.clone()));
-            });
+            let result = repo.get_by_email(conn, &email_value);
+            assert!(result.is_ok());
+            assert_eq!(result.as_ref().unwrap().id, user_id_value);
+            assert_eq!(result.as_ref().unwrap().email, Some(email_value.clone()));
 
             Err::<(), diesel::result::Error>(diesel::result::Error::RollbackTransaction)
         }) {

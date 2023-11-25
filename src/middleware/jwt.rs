@@ -9,6 +9,7 @@ use jsonwebtoken::errors::ErrorKind;
 use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use serde::Deserialize;
 use serde::Serialize;
+use std::collections::HashSet;
 use std::env;
 use std::{
     future::{ready, Future, Ready},
@@ -48,6 +49,7 @@ pub struct JWTMiddleware<S> {
 #[derive(Debug, Deserialize, Serialize)]
 #[allow(dead_code)]
 struct JWTClaims {
+    aud: String,
     exp: usize,
     email: String,
 }
@@ -86,11 +88,17 @@ where
             Ok(t) => t,
             Err(e) => return Box::pin(async { Err(Error::from(HttpError::from(e))) }),
         };
+
+        let mut validation = Validation::new(Algorithm::HS256); // Change algorithm as you like
+        let mut aud_set = HashSet::new();
+        // TODO:
+        aud_set.insert("authenticated".to_string());
+        validation.aud = Some(aud_set);
         // JWTのデコードと検証
         match decode::<JWTClaims>(
             &token,
             &DecodingKey::from_secret(secret.as_ref()),
-            &Validation::new(Algorithm::HS512), // Change algorithm as you like
+            &validation,
         ) {
             Ok(c) => {
                 info!("email: {}", c.claims.email);

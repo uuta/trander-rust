@@ -11,7 +11,7 @@ pub trait UsersRepository {
         &self,
         conn: &mut MysqlConnection,
         email_value: &String,
-    ) -> Result<Vec<User>, diesel::result::Error>;
+    ) -> Result<User, diesel::result::Error>;
 
     fn add(
         &self,
@@ -27,8 +27,8 @@ impl UsersRepository for ImplUsersRepository {
         &self,
         conn: &mut MysqlConnection,
         email_value: &String,
-    ) -> Result<Vec<User>, diesel::result::Error> {
-        users.filter(email.eq(email_value)).load::<User>(conn)
+    ) -> Result<User, diesel::result::Error> {
+        users.filter(email.eq(email_value)).first::<User>(conn)
     }
 
     fn add(
