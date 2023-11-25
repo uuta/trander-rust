@@ -89,12 +89,25 @@ where
             Err(e) => return Box::pin(async { Err(Error::from(HttpError::from(e))) }),
         };
 
-        let mut validation = Validation::new(Algorithm::HS256); // Change algorithm as you like
+        // Change algorithm as you like
+        let mut validation = Validation::new(Algorithm::HS256);
         let mut aud_set = HashSet::new();
-        // TODO:
-        aud_set.insert("authenticated".to_string());
+        let aud = match env::var("SUPABASE_JWT_AUD") {
+            Ok(s) => s,
+            Err(_) => {
+                return Box::pin(async {
+                    Err(Error::from(HttpError {
+                        cause: None,
+                        message: Some("JWT aud not found".to_string()),
+                        error_type: HttpErrorType::AuthError,
+                    }))
+                })
+            }
+        };
+        aud_set.insert(aud);
         validation.aud = Some(aud_set);
-        // JWTのデコードと検証
+
+        // Decode JWT token and verify it
         match decode::<JWTClaims>(
             &token,
             &DecodingKey::from_secret(secret.as_ref()),
@@ -104,9 +117,6 @@ where
                 info!("email: {}", c.claims.email);
                 // TODO: リクエストに追加しているがmiddlewreで取得できない
                 req.extensions_mut().insert(c.claims.email);
-                if let Some(email) = req.extensions().get::<String>() {
-                    info!("email2: {}", email);
-                }
             }
             Err(err) => match err.kind() {
                 ErrorKind::InvalidToken => {
