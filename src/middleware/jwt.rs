@@ -108,68 +108,155 @@ where
                     info!("email2: {}", email);
                 }
             }
-            Err(err) => match *err.kind() {
-                    ErrorKind::InvalidToken => {
-                        return Box::pin(async {Err(Error::from(HttpError {
+            Err(err) => match err.kind() {
+                ErrorKind::InvalidToken => {
+                    return Box::pin(async {
+                        Err(Error::from(HttpError {
                             cause: None,
                             message: Some("Requested with invalid token".to_string()),
                             error_type: HttpErrorType::AuthError,
-                        }))})
-                    }
-                    ErrorKind::InvalidIssuer => {
-                        return Box::pin(async {Err(Error::from(HttpError {
+                        }))
+                    })
+                }
+                ErrorKind::InvalidIssuer => {
+                    return Box::pin(async {
+                        Err(Error::from(HttpError {
                             cause: None,
                             message: Some("Requested with invalid issuer".to_string()),
                             error_type: HttpErrorType::AuthError,
-                        }))})
-                    }
-                    // INFO: When I requested with a token which is encoded Base64, this error occurred.
-                    ErrorKind::InvalidSignature => {
-                        return Box::pin(async {Err(Error::from(HttpError {
+                        }))
+                    })
+                }
+                // INFO: When I requested with a token which is encoded Base64, this error occurred.
+                ErrorKind::InvalidSignature => {
+                    return Box::pin(async {
+                        Err(Error::from(HttpError {
                             cause: None,
                             message: Some("Requested with invalid signature".to_string()),
                             error_type: HttpErrorType::AuthError,
-                        }))})
-                    }
-                    ErrorKind::InvalidEcdsaKey => {
-                        return Box::pin(async {Err(Error::from(HttpError {
+                        }))
+                    })
+                }
+                ErrorKind::InvalidEcdsaKey => {
+                    return Box::pin(async {
+                        Err(Error::from(HttpError {
                             cause: None,
                             message: Some("Requested with invalid ecdsa key".to_string()),
                             error_type: HttpErrorType::AuthError,
-                        }))})
-                    }
-                    ErrorKind::InvalidAudience => {
-                        return Box::pin(async {Err(Error::from(HttpError {
+                        }))
+                    })
+                }
+                ErrorKind::InvalidAudience => {
+                    return Box::pin(async {
+                        Err(Error::from(HttpError {
                             cause: None,
                             message: Some("Requested with invalid audience".to_string()),
                             error_type: HttpErrorType::AuthError,
-                        }))})
-                    }
-                    ErrorKind::InvalidSubject => {
-                        return Box::pin(async {Err(Error::from(HttpError {
+                        }))
+                    })
+                }
+                ErrorKind::InvalidSubject => {
+                    return Box::pin(async {
+                        Err(Error::from(HttpError {
                             cause: None,
                             message: Some("Requested with invalid subject".to_string()),
                             error_type: HttpErrorType::AuthError,
-                        }))})
-                    }
-                    _ => {
-                        return Box::pin(async {Err(Error::from(HttpError {
+                        }))
+                    })
+                }
+                ErrorKind::InvalidRsaKey(e) => {
+                    let error_message = format!("Requested with rsa key: {}", e);
+                    return Box::pin(async {
+                        Err(Error::from(HttpError {
+                            cause: None,
+                            message: Some(error_message),
+                            error_type: HttpErrorType::AuthError,
+                        }))
+                    });
+                }
+                ErrorKind::RsaFailedSigning => {
+                    return Box::pin(async {
+                        Err(Error::from(HttpError {
+                            cause: None,
+                            message: Some("Rsa failed signing".to_string()),
+                            error_type: HttpErrorType::AuthError,
+                        }))
+                    })
+                }
+                ErrorKind::InvalidAlgorithmName => {
+                    return Box::pin(async {
+                        Err(Error::from(HttpError {
+                            cause: None,
+                            message: Some("Invalid algorithm name".to_string()),
+                            error_type: HttpErrorType::AuthError,
+                        }))
+                    })
+                }
+                ErrorKind::InvalidKeyFormat => {
+                    return Box::pin(async {
+                        Err(Error::from(HttpError {
+                            cause: None,
+                            message: Some("Invalid key format".to_string()),
+                            error_type: HttpErrorType::AuthError,
+                        }))
+                    })
+                }
+                ErrorKind::MissingRequiredClaim(e) => {
+                    let error_message = format!("Missing required claim: {}", e);
+                    return Box::pin(async {
+                        Err(Error::from(HttpError {
+                            cause: None,
+                            message: Some(error_message),
+                            error_type: HttpErrorType::AuthError,
+                        }))
+                    });
+                }
+                ErrorKind::ExpiredSignature => {
+                    return Box::pin(async {
+                        Err(Error::from(HttpError {
+                            cause: None,
+                            message: Some("Expired signature".to_string()),
+                            error_type: HttpErrorType::AuthError,
+                        }))
+                    })
+                }
+                ErrorKind::ImmatureSignature => {
+                    return Box::pin(async {
+                        Err(Error::from(HttpError {
+                            cause: None,
+                            message: Some("Immature signature".to_string()),
+                            error_type: HttpErrorType::AuthError,
+                        }))
+                    })
+                }
+                ErrorKind::InvalidAlgorithm => {
+                    return Box::pin(async {
+                        Err(Error::from(HttpError {
+                            cause: None,
+                            message: Some("Invalid algorithm".to_string()),
+                            error_type: HttpErrorType::AuthError,
+                        }))
+                    })
+                }
+                ErrorKind::MissingAlgorithm => {
+                    return Box::pin(async {
+                        Err(Error::from(HttpError {
+                            cause: None,
+                            message: Some("Missing algorithm".to_string()),
+                            error_type: HttpErrorType::AuthError,
+                        }))
+                    })
+                }
+                _ => {
+                    return Box::pin(async {
+                        Err(Error::from(HttpError {
                             cause: None,
                             message: Some("Error occurred".to_string()),
                             error_type: HttpErrorType::AuthError,
-                        }))})
-                    }
-                    // ErrorKind::InvalidRsaKey(String),
-                    // ErrorKind::RsaFailedSigning,
-                    // ErrorKind::InvalidAlgorithmName,
-                    // ErrorKind::InvalidKeyFormat,
-                    // ErrorKind::MissingRequiredClaim(String),
-                    // ErrorKind::ExpiredSignature,
-                    // ErrorKind::ImmatureSignature,
-                    // ErrorKind::InvalidAlgorithm,
-                    // ErrorKind::MissingAlgorithm,
-                    // ErrorKind::Base64(base64::DecodeError),
-                },
+                        }))
+                    })
+                } // ErrorKind::Base64(base64::DecodeError),
+            },
         };
 
         let fut = self.service.call(req);
