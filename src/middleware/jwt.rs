@@ -1,8 +1,11 @@
+use crate::db;
 use crate::error::http_error::{HttpError, HttpErrorType};
 use crate::info_request_log;
+use crate::repository::users::{ImplUsersRepository, UsersRepository};
 use actix_web::HttpMessage;
 use actix_web::{
     dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
+    web::Data,
     Error,
 };
 use jsonwebtoken::errors::ErrorKind;
@@ -114,9 +117,34 @@ where
             &validation,
         ) {
             Ok(c) => {
-                info!("email: {}", c.claims.email);
-                // TODO: リクエストに追加しているがmiddlewreで取得できない
-                req.extensions_mut().insert(c.claims.email);
+                if let Some(db) = req.request().app_data::<Data<db::DbPool>>() {
+                    if let Ok(mut conn) = db.get().map_err(|e| HttpError::from(e)) {
+                        let email = c.claims.email.clone();
+                        let users_repo = ImplUsersRepository;
+                        let user_res = users_repo
+                            .get_by_email(&mut conn, &email)
+                            .map_err(|e| HttpError::from(e));
+                        let user = match user_res {
+                            Ok(s) => s,
+                            Err(_) => {
+                                return Box::pin(async {
+                                    Err(Error::from(HttpError {
+                                        cause: None,
+                                        message: Some(
+                                            "failed to get by email in users".to_string(),
+                                        ),
+                                        error_type: HttpErrorType::DbError,
+                                    }))
+                                })
+                            }
+                        };
+
+                        info!("user: {:?}", user);
+                        // TODO: Replace with a user
+                        req.extensions_mut()
+                            .insert(user.email.map_or("".to_string(), |s| s));
+                    }
+                }
             }
             Err(err) => match err.kind() {
                 ErrorKind::InvalidToken => {
