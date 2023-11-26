@@ -97,15 +97,7 @@ where
         let mut aud_set = HashSet::new();
         let aud = match env::var("SUPABASE_JWT_AUD") {
             Ok(s) => s,
-            Err(_) => {
-                return Box::pin(async {
-                    Err(Error::from(HttpError {
-                        cause: None,
-                        message: Some("JWT aud not found".to_string()),
-                        error_type: HttpErrorType::AuthError,
-                    }))
-                })
-            }
+            Err(e) => return Box::pin(async { Err(Error::from(HttpError::from(e))) }),
         };
         aud_set.insert(aud);
         validation.aud = Some(aud_set);

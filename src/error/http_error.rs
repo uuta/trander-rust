@@ -3,6 +3,7 @@ use actix_web::error::ResponseError;
 use actix_web::{http::StatusCode, HttpResponse};
 use r2d2;
 use serde::Serialize;
+use std::env::VarError;
 use std::fmt;
 use tracing::error;
 use validator::ValidationErrors;
@@ -18,6 +19,7 @@ pub enum HttpErrorType {
     JsonParseError,
     IOError,
     AuthError,
+    VarError,
 }
 
 // Struct type is already defined Option<String> and HttpErrorType. We can also define later.
@@ -88,20 +90,16 @@ impl HttpError {
             HttpError {
                 cause: Some(cause),
                 message: None,
+                error_type: HttpErrorType::VarError,
+            } => cause.clone(),
+            HttpError {
+                cause: Some(cause),
+                message: None,
                 error_type: HttpErrorType::IOError,
             } => cause.clone(),
             _ => "An unexpected error has occured".to_string(),
         }
     }
-    // This db_error is used when we haven't implmented the From trait
-
-    // pub fn db_error(error: impl ToString) -> HttpError {
-    //     HttpError {
-    //         cause: Some(error.to_string()),
-    //         message: None,
-    //         error_type: HttpErrorType::DbError,
-    //     }
-    // }
 }
 
 impl fmt::Display for HttpError {
@@ -123,6 +121,7 @@ impl ResponseError for HttpError {
             HttpErrorType::HeaderParseError => StatusCode::BAD_REQUEST,
             HttpErrorType::JsonParseError => StatusCode::BAD_REQUEST,
             HttpErrorType::IOError => StatusCode::INTERNAL_SERVER_ERROR,
+            HttpErrorType::VarError => StatusCode::BAD_REQUEST,
             HttpErrorType::AuthError => StatusCode::UNAUTHORIZED,
         }
     }
@@ -217,6 +216,16 @@ impl From<std::io::Error> for HttpError {
             message: None,
             cause: Some(error.to_string()),
             error_type: HttpErrorType::IOError,
+        }
+    }
+}
+
+impl From<VarError> for HttpError {
+    fn from(error: VarError) -> HttpError {
+        HttpError {
+            message: None,
+            cause: Some(error.to_string()),
+            error_type: HttpErrorType::VarError,
         }
     }
 }
