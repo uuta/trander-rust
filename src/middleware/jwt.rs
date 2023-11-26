@@ -121,22 +121,42 @@ where
                     if let Ok(mut conn) = db.get().map_err(|e| HttpError::from(e)) {
                         let email = c.claims.email.clone();
                         let users_repo = ImplUsersRepository;
-                        let user_res = users_repo
-                            .get_by_email(&mut conn, &email)
-                            .map_err(|e| HttpError::from(e));
+                        let user_res = users_repo.get_by_email(&mut conn, &email);
                         let user = match user_res {
                             Ok(s) => s,
-                            Err(_) => {
-                                return Box::pin(async {
-                                    Err(Error::from(HttpError {
-                                        cause: None,
-                                        message: Some(
-                                            "failed to get by email in users".to_string(),
-                                        ),
-                                        error_type: HttpErrorType::DbError,
-                                    }))
-                                })
-                            }
+                            Err(e) => match e {
+                                // Register a new user if the user is not found
+                                diesel::NotFound => {
+                                    let user_add_res = users_repo
+                                        .add(&mut conn, &email)
+                                        .map_err(|e| HttpError::from(e));
+                                    match user_add_res {
+                                        Ok(_s) => {
+                                            let user_res = users_repo
+                                                .get_by_email(&mut conn, &email)
+                                                .map_err(|e| HttpError::from(e));
+                                            match user_res {
+                                                Ok(s) => s,
+                                                Err(e) => {
+                                                    return Box::pin(async {
+                                                        Err(Error::from(HttpError::from(e)))
+                                                    });
+                                                }
+                                            }
+                                        }
+                                        Err(_e) => {
+                                            return Box::pin(async {
+                                                Err(Error::from(HttpError::from(e)))
+                                            });
+                                        }
+                                    }
+                                }
+                                _ => {
+                                    return Box::pin(async {
+                                        Err(Error::from(HttpError::from(e)))
+                                    });
+                                }
+                            },
                         };
 
                         info!("user: {:?}", user);
