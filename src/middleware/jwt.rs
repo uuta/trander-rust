@@ -10,6 +10,7 @@ use actix_web::{
     web::Data,
     Error,
 };
+use diesel::Connection;
 use jsonwebtoken::errors::ErrorKind;
 use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use serde::Deserialize;
@@ -115,28 +116,29 @@ where
                     if let Ok(mut conn) = db.get().map_err(|e| HttpError::from(e)) {
                         let email = c.claims.email.clone();
                         let users_repo = ImplUsersRepository;
-                        let user = users_repo
-                            .get_by_email(&mut conn, &email)
-                            .or_else(|e| {
-                                if e == diesel::NotFound {
-                                    // add user
-                                    let user_id = users_repo
-                                        .add(&mut conn, &email)
-                                        .map_err(HttpError::from)?;
-                                    let settings_repo = ImplSettingsRepository;
-                                    let _ = settings_repo
-                                        .add(&mut conn, &user_id, &Default::default())
-                                        .map_err(HttpError::from)?;
-                                    let request_limits_repo = ImplRequestLimitsRepository;
-                                    let _ = request_limits_repo
-                                        .add(&mut conn, &user_id)
-                                        .map_err(HttpError::from)?;
-                                    users_repo
-                                        .get_by_email(&mut conn, &email)
-                                        .map_err(HttpError::from)
-                                } else {
-                                    Err(HttpError::from(e))
-                                }
+                        let user = conn
+                            .transaction::<_, HttpError, _>(|mut conn| {
+                                users_repo.get_by_email(&mut conn, &email).or_else(|e| {
+                                    if e == diesel::NotFound {
+                                        // add user
+                                        let user_id = users_repo
+                                            .add(&mut conn, &email)
+                                            .map_err(HttpError::from)?;
+                                        let settings_repo = ImplSettingsRepository;
+                                        let _ = settings_repo
+                                            .add(&mut conn, &user_id, &Default::default())
+                                            .map_err(HttpError::from)?;
+                                        let request_limits_repo = ImplRequestLimitsRepository;
+                                        let _ = request_limits_repo
+                                            .add(&mut conn, &user_id)
+                                            .map_err(HttpError::from)?;
+                                        users_repo
+                                            .get_by_email(&mut conn, &email)
+                                            .map_err(HttpError::from)
+                                    } else {
+                                        Err(HttpError::from(e))
+                                    }
+                                })
                             })
                             .map_err(|e| Err(Error::from(HttpError::from(e))));
                         match user {
@@ -146,7 +148,7 @@ where
                                 req.extensions_mut()
                                     .insert(user.email.map_or("".to_string(), |s| s));
                             }
-                            Err(e) => return Box::pin(async { e }),
+                            Err(e) => return Box::pin(async move { e }),
                         }
                     }
                 }
