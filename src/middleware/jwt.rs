@@ -1,6 +1,8 @@
 use crate::db;
 use crate::error::http_error::{HttpError, HttpErrorType};
 use crate::info_request_log;
+use crate::repository::request_limits::{ImplRequestLimitsRepository, RequestLimitsRepository};
+use crate::repository::settings::{ImplSettingsRepository, SettingsRepository};
 use crate::repository::users::{ImplUsersRepository, UsersRepository};
 use actix_web::HttpMessage;
 use actix_web::{
@@ -113,48 +115,39 @@ where
                     if let Ok(mut conn) = db.get().map_err(|e| HttpError::from(e)) {
                         let email = c.claims.email.clone();
                         let users_repo = ImplUsersRepository;
-                        let user_res = users_repo.get_by_email(&mut conn, &email);
-                        let user = match user_res {
-                            Ok(s) => s,
-                            Err(e) => match e {
-                                // Register a new user if the user is not found
-                                diesel::NotFound => {
-                                    let user_add_res = users_repo
+                        let user = users_repo
+                            .get_by_email(&mut conn, &email)
+                            .or_else(|e| {
+                                if e == diesel::NotFound {
+                                    // add user
+                                    let user_id = users_repo
                                         .add(&mut conn, &email)
-                                        .map_err(|e| HttpError::from(e));
-                                    match user_add_res {
-                                        Ok(_s) => {
-                                            let user_res = users_repo
-                                                .get_by_email(&mut conn, &email)
-                                                .map_err(|e| HttpError::from(e));
-                                            match user_res {
-                                                Ok(s) => s,
-                                                Err(e) => {
-                                                    return Box::pin(async {
-                                                        Err(Error::from(HttpError::from(e)))
-                                                    });
-                                                }
-                                            }
-                                        }
-                                        Err(_e) => {
-                                            return Box::pin(async {
-                                                Err(Error::from(HttpError::from(e)))
-                                            });
-                                        }
-                                    }
+                                        .map_err(HttpError::from)?;
+                                    let settings_repo = ImplSettingsRepository;
+                                    let _ = settings_repo
+                                        .add(&mut conn, &user_id, &Default::default())
+                                        .map_err(HttpError::from)?;
+                                    let request_limits_repo = ImplRequestLimitsRepository;
+                                    let _ = request_limits_repo
+                                        .add(&mut conn, &user_id)
+                                        .map_err(HttpError::from)?;
+                                    users_repo
+                                        .get_by_email(&mut conn, &email)
+                                        .map_err(HttpError::from)
+                                } else {
+                                    Err(HttpError::from(e))
                                 }
-                                _ => {
-                                    return Box::pin(async {
-                                        Err(Error::from(HttpError::from(e)))
-                                    });
-                                }
-                            },
-                        };
-
-                        info!("user: {:?}", user);
-                        // TODO: Replace with a user
-                        req.extensions_mut()
-                            .insert(user.email.map_or("".to_string(), |s| s));
+                            })
+                            .map_err(|e| Err(Error::from(HttpError::from(e))));
+                        match user {
+                            Ok(user) => {
+                                info!("user: {:?}", user);
+                                // TODO: Replace with a user
+                                req.extensions_mut()
+                                    .insert(user.email.map_or("".to_string(), |s| s));
+                            }
+                            Err(e) => return Box::pin(async { e }),
+                        }
                     }
                 }
             }

@@ -44,5 +44,16 @@ impl FromRequest for UpdateParams {
 pub struct AddParams {
     pub min_distance: i32,
     pub max_distance: i32,
+    // TODO: fix to use location.direction_type
     pub direction_type: i16,
+}
+
+impl Default for AddParams {
+    fn default() -> Self {
+        Self {
+            min_distance: 0,
+            max_distance: 100,
+            direction_type: 0,
+        }
+    }
 }
