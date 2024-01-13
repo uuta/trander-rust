@@ -57,7 +57,11 @@ pub struct JWTMiddleware<S> {
 struct JWTClaims {
     aud: String,
     exp: usize,
+    iat: usize,
+    iss: String,
     email: String,
+    phone: Option<String>,
+    role: String,
 }
 
 type LocalBoxFuture<T> = Pin<Box<dyn Future<Output = T> + 'static>>;
