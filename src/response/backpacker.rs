@@ -4,6 +4,7 @@ use crate::service::location::{ImplLocationService, LocationService};
 use serde::Serialize;
 
 #[derive(Debug, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Response {
     pub name: String,
     pub distance: f64,

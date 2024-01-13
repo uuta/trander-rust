@@ -52,7 +52,7 @@ impl City {
         keyword
     }
     pub fn country_code(&self) -> String {
-        self.country_code.clone()
+        self.country_code.to_lowercase().clone()
     }
     pub fn lat(&self) -> f64 {
         self.latitude
