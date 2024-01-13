@@ -155,18 +155,18 @@ where
             }
             Err(err) => match err.kind() {
                 ErrorKind::InvalidToken => {
-                    return Box::pin(async {
+                    return Box::pin(async move {
                         Err(Error::from(HttpError {
-                            cause: None,
+                            cause: Some(format!("{}", err)),
                             message: Some("Requested with invalid token".to_string()),
                             error_type: HttpErrorType::AuthError,
                         }))
                     })
                 }
                 ErrorKind::InvalidIssuer => {
-                    return Box::pin(async {
+                    return Box::pin(async move {
                         Err(Error::from(HttpError {
-                            cause: None,
+                            cause: Some(format!("{}", err)),
                             message: Some("Requested with invalid issuer".to_string()),
                             error_type: HttpErrorType::AuthError,
                         }))
@@ -174,36 +174,36 @@ where
                 }
                 // INFO: When I requested with a token which is encoded Base64, this error occurred.
                 ErrorKind::InvalidSignature => {
-                    return Box::pin(async {
+                    return Box::pin(async move {
                         Err(Error::from(HttpError {
-                            cause: None,
+                            cause: Some(format!("{}", err)),
                             message: Some("Requested with invalid signature".to_string()),
                             error_type: HttpErrorType::AuthError,
                         }))
                     })
                 }
                 ErrorKind::InvalidEcdsaKey => {
-                    return Box::pin(async {
+                    return Box::pin(async move {
                         Err(Error::from(HttpError {
-                            cause: None,
+                            cause: Some(format!("{}", err)),
                             message: Some("Requested with invalid ecdsa key".to_string()),
                             error_type: HttpErrorType::AuthError,
                         }))
                     })
                 }
                 ErrorKind::InvalidAudience => {
-                    return Box::pin(async {
+                    return Box::pin(async move {
                         Err(Error::from(HttpError {
-                            cause: None,
+                            cause: Some(format!("{}", err)),
                             message: Some("Requested with invalid audience".to_string()),
                             error_type: HttpErrorType::AuthError,
                         }))
                     })
                 }
                 ErrorKind::InvalidSubject => {
-                    return Box::pin(async {
+                    return Box::pin(async move {
                         Err(Error::from(HttpError {
-                            cause: None,
+                            cause: Some(format!("{}", err)),
                             message: Some("Requested with invalid subject".to_string()),
                             error_type: HttpErrorType::AuthError,
                         }))
@@ -211,36 +211,36 @@ where
                 }
                 ErrorKind::InvalidRsaKey(e) => {
                     let error_message = format!("Requested with rsa key: {}", e);
-                    return Box::pin(async {
+                    return Box::pin(async move {
                         Err(Error::from(HttpError {
-                            cause: None,
+                            cause: Some(format!("{}", err)),
                             message: Some(error_message),
                             error_type: HttpErrorType::AuthError,
                         }))
                     });
                 }
                 ErrorKind::RsaFailedSigning => {
-                    return Box::pin(async {
+                    return Box::pin(async move {
                         Err(Error::from(HttpError {
-                            cause: None,
+                            cause: Some(format!("{}", err)),
                             message: Some("Rsa failed signing".to_string()),
                             error_type: HttpErrorType::AuthError,
                         }))
                     })
                 }
                 ErrorKind::InvalidAlgorithmName => {
-                    return Box::pin(async {
+                    return Box::pin(async move {
                         Err(Error::from(HttpError {
-                            cause: None,
+                            cause: Some(format!("{}", err)),
                             message: Some("Invalid algorithm name".to_string()),
                             error_type: HttpErrorType::AuthError,
                         }))
                     })
                 }
                 ErrorKind::InvalidKeyFormat => {
-                    return Box::pin(async {
+                    return Box::pin(async move {
                         Err(Error::from(HttpError {
-                            cause: None,
+                            cause: Some(format!("{}", err)),
                             message: Some("Invalid key format".to_string()),
                             error_type: HttpErrorType::AuthError,
                         }))
@@ -248,54 +248,54 @@ where
                 }
                 ErrorKind::MissingRequiredClaim(e) => {
                     let error_message = format!("Missing required claim: {}", e);
-                    return Box::pin(async {
+                    return Box::pin(async move {
                         Err(Error::from(HttpError {
-                            cause: None,
+                            cause: Some(format!("{}", err)),
                             message: Some(error_message),
                             error_type: HttpErrorType::AuthError,
                         }))
                     });
                 }
                 ErrorKind::ExpiredSignature => {
-                    return Box::pin(async {
+                    return Box::pin(async move {
                         Err(Error::from(HttpError {
-                            cause: None,
+                            cause: Some(format!("{}", err)),
                             message: Some("Expired signature".to_string()),
                             error_type: HttpErrorType::AuthError,
                         }))
                     })
                 }
                 ErrorKind::ImmatureSignature => {
-                    return Box::pin(async {
+                    return Box::pin(async move {
                         Err(Error::from(HttpError {
-                            cause: None,
+                            cause: Some(format!("{}", err)),
                             message: Some("Immature signature".to_string()),
                             error_type: HttpErrorType::AuthError,
                         }))
                     })
                 }
                 ErrorKind::InvalidAlgorithm => {
-                    return Box::pin(async {
+                    return Box::pin(async move {
                         Err(Error::from(HttpError {
-                            cause: None,
+                            cause: Some(format!("{}", err)),
                             message: Some("Invalid algorithm".to_string()),
                             error_type: HttpErrorType::AuthError,
                         }))
                     })
                 }
                 ErrorKind::MissingAlgorithm => {
-                    return Box::pin(async {
+                    return Box::pin(async move {
                         Err(Error::from(HttpError {
-                            cause: None,
+                            cause: Some(format!("{}", err)),
                             message: Some("Missing algorithm".to_string()),
                             error_type: HttpErrorType::AuthError,
                         }))
                     })
                 }
                 _ => {
-                    return Box::pin(async {
+                    return Box::pin(async move {
                         Err(Error::from(HttpError {
-                            cause: None,
+                            cause: Some(format!("{}", err)),
                             message: Some("Error occurred".to_string()),
                             error_type: HttpErrorType::AuthError,
                         }))
