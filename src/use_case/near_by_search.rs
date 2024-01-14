@@ -39,7 +39,8 @@ impl<R: GooglePlaceIdsRepository + Send + Sync> NearBySearchUseCase<R> for ImplN
         let mut location_service = location::ImplLocationService::new(
             p.lng,
             p.lat,
-            p.distance,
+            p.min_distance,
+            p.max_distance,
             p.direction_type,
             Box::new(NewAngleService),
             Box::new(NewDestService {

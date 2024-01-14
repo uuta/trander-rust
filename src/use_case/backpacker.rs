@@ -52,7 +52,8 @@ impl<R: GooglePlaceIdsRepository + Send + Sync> BackpackerUseCase<R> for ImplBac
                 let mut location_service = location::ImplLocationService::new(
                     first_geo.lng(),
                     first_geo.lat(),
-                    100.0,
+                    0.0,
+                    10000.0,
                     location::DirectionType::All,
                     Box::new(NewAngleService),
                     Box::new(NewDestService {
