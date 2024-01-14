@@ -6,6 +6,7 @@ use serde::Serialize;
 #[derive(Debug, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Response {
+    pub place_id: String,
     pub name: String,
     pub distance: f64,
     pub direction: String,
@@ -28,6 +29,7 @@ impl Response {
         lat: f64,
     ) -> Self {
         Self {
+            place_id: near_by_search.place_id(),
             name: geo_db_cities_data.city_name(),
             distance: location_service.distance(lng, lat),
             direction: location_service.detailed_direction().to_string(),
