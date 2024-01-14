@@ -28,7 +28,7 @@ impl Response {
         lat: f64,
     ) -> Self {
         Self {
-            name: geo_db_cities_data.city_name(),
+            name: near_by_search.name(),
             distance: location_service.distance(lng, lat),
             direction: location_service.detailed_direction().to_string(),
             country_code: geo_db_cities_data.country_code(),
