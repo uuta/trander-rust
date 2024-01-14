@@ -8,7 +8,7 @@ use actix_web::web::{Data, Json};
 use actix_web::{get, Responder};
 use tracing::info;
 
-#[get("/near_by_search")]
+#[get("/near-by-search")]
 pub async fn get(db: Data<db::DbPool>, params: GetParams) -> Result<impl Responder, HttpError> {
     info_request_log!();
     let mut conn = db.get().map_err(|e| HttpError::from(e))?;
