@@ -35,6 +35,7 @@ impl FromRequest for GetParams {
                 .get("distance")
                 .unwrap_or(&"0.0".to_string())
                 .parse::<f64>()
+                .map(|d| d * 1000.0)
                 .unwrap_or(0.0),
             direction_type: query
                 .get("directionType")

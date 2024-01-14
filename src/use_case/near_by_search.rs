@@ -14,6 +14,7 @@ use async_trait::async_trait;
 use diesel::MysqlConnection;
 use geo::Point;
 use mockall::automock;
+use tracing::info;
 
 #[async_trait]
 #[automock]
@@ -47,6 +48,7 @@ impl<R: GooglePlaceIdsRepository + Send + Sync> NearBySearchUseCase<R> for ImplN
             }),
             Box::new(NewDistanceService),
         );
+        info!("p.distancbbbbbbbbbbbbb: {:?}", p.distance);
         location_service.gen();
         let near_by_search_data =
             near_by_search(&ImplApiHandler, &location_service.concat(), &p.keyword).await?;

@@ -3,6 +3,7 @@ use crate::service::location::new_dest::NewDest;
 use crate::service::location::new_distance::NewDistance;
 use mockall::automock;
 use std::str::FromStr;
+use tracing::info;
 
 pub mod new_angle;
 pub mod new_dest;
@@ -95,6 +96,7 @@ impl ImplLocationService {
 impl LocationService for ImplLocationService {
     fn gen(&mut self) -> () {
         self.angle = self.new_angle_service.new_angle(self.direction_type);
+        info!("distance: {}", self.distance);
         self.new_dest_service
             .new_dest(self.lng, self.lat, self.angle, self.distance);
     }
