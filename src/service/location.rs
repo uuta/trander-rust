@@ -3,7 +3,6 @@ use crate::service::location::new_dest::NewDest;
 use crate::service::location::new_distance::NewDistance;
 use mockall::automock;
 use std::str::FromStr;
-use tracing::info;
 
 pub mod new_angle;
 pub mod new_dest;
@@ -74,7 +73,8 @@ impl ImplLocationService {
     pub fn new(
         lng: f64,
         lat: f64,
-        distance: f64,
+        min_distance: f64,
+        max_distance: f64,
         direction_type: DirectionType,
         new_angle_service: Box<dyn NewAngle + Send>,
         new_dest_service: Box<dyn NewDest + Send>,
@@ -83,7 +83,7 @@ impl ImplLocationService {
         Self {
             lng,
             lat,
-            distance,
+            distance: new_distance_service.new_distance(min_distance, max_distance),
             direction_type,
             angle: 0.0,
             new_angle_service,
@@ -96,7 +96,6 @@ impl ImplLocationService {
 impl LocationService for ImplLocationService {
     fn gen(&mut self) -> () {
         self.angle = self.new_angle_service.new_angle(self.direction_type);
-        info!("distance: {}", self.distance);
         self.new_dest_service
             .new_dest(self.lng, self.lat, self.angle, self.distance);
     }
@@ -137,7 +136,7 @@ mod tests {
         let mut mock_dest_service = MockNewDest::new();
         mock_dest_service
             .expect_new_dest()
-            .with(eq(139.767125), eq(35.681236), eq(45.0), eq(100000.0))
+            .with(eq(139.767125), eq(35.681236), eq(45.0), eq(1.0))
             .return_const(()); // Always return () when called with these arguments
 
         mock_dest_service
@@ -157,6 +156,11 @@ mod tests {
 
         let mut mock_distance_service = MockNewDistance::new();
         mock_distance_service
+            .expect_new_distance()
+            .with(eq(1.0), eq(1.0))
+            .return_const(1.0);
+
+        mock_distance_service
             .expect_distance()
             .with(
                 eq(139.767125),
@@ -164,12 +168,13 @@ mod tests {
                 eq(140.87174397802116),
                 eq(35.6761685462078),
             )
-            .return_const(100000.0);
+            .return_const(1.0);
 
         let mut location_service = ImplLocationService::new(
             139.767125,
             35.681236,
-            100000.0,
+            1.0,
+            1.0,
             DirectionType::East,
             Box::new(mock_angle_service),
             Box::new(mock_dest_service),
@@ -184,6 +189,6 @@ mod tests {
         let concated = location_service.concat();
         assert_eq!(concated, "35.6761685462078,140.87174397802116");
         let distance = location_service.distance(140.87174397802116, 35.6761685462078);
-        assert_eq!(distance, 100000.0);
+        assert_eq!(distance, 1.0);
     }
 }

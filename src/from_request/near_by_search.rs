@@ -7,7 +7,8 @@ use std::collections::HashMap;
 pub struct GetParams {
     pub lng: f64,
     pub lat: f64,
-    pub distance: f64,
+    pub min_distance: f64,
+    pub max_distance: f64,
     pub direction_type: location::DirectionType,
     pub keyword: String,
 }
@@ -32,7 +33,13 @@ impl FromRequest for GetParams {
                 .unwrap_or(&"0.0".to_string())
                 .parse::<f64>()
                 .unwrap_or(0.0),
-            distance: query
+            min_distance: query
+                .get("distance")
+                .unwrap_or(&"0.0".to_string())
+                .parse::<f64>()
+                .map(|d| d * 1000.0)
+                .unwrap_or(0.0),
+            max_distance: query
                 .get("distance")
                 .unwrap_or(&"0.0".to_string())
                 .parse::<f64>()
