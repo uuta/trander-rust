@@ -34,13 +34,13 @@ impl FromRequest for GetParams {
                 .parse::<f64>()
                 .unwrap_or(0.0),
             min_distance: query
-                .get("distance")
+                .get("min")
                 .unwrap_or(&"0.0".to_string())
                 .parse::<f64>()
                 .map(|d| d * 1000.0)
                 .unwrap_or(0.0),
             max_distance: query
-                .get("distance")
+                .get("max")
                 .unwrap_or(&"0.0".to_string())
                 .parse::<f64>()
                 .map(|d| d * 1000.0)
