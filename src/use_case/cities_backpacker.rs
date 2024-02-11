@@ -52,7 +52,7 @@ impl<R: GooglePlaceIdsRepository + Send + Sync> CitiesBackpackerUseCase<R>
                     first_geo.lng(),
                     first_geo.lat(),
                     0.0,
-                    0.0,
+                    1.0,
                     location::DirectionType::All,
                     Box::new(NewAngleService),
                     Box::new(NewDestService {
