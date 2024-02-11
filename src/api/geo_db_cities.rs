@@ -60,6 +60,9 @@ impl City {
     pub fn lng(&self) -> f64 {
         self.longitude
     }
+    pub fn concat(&self) -> String {
+        self.latitude.to_string() + "," + &self.longitude.to_string()
+    }
 }
 
 pub async fn geo_db_cities<A: ApiHandler + Send + Sync>(
@@ -233,5 +236,25 @@ mod tests {
         );
         let city_name = first.unwrap().city_name();
         assert_eq!(city_name, "Sant Julià de Lòria Aixirivall");
+    }
+    #[test]
+    async fn test_concat() {
+        let city = City {
+            id: 3350606,
+            wiki_data_id: Some("Q24668".to_string()),
+            city: "Aixirivall".to_string(),
+            name: "Aixirivall".to_string(),
+            country: "Andorra".to_string(),
+            country_code: "AD".to_string(),
+            region: Some("Sant Julià de Lòria".to_string()),
+            region_code: Some("06".to_string()),
+            region_wd_id: Some("Q24282".to_string()),
+            latitude: 42.46245,
+            longitude: 1.50209,
+            population: Some(0),
+            distance: Some(0.0),
+        };
+        let got = city.concat();
+        assert_eq!(got, "42.46245,1.50209");
     }
 }

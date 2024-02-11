@@ -33,6 +33,7 @@ async fn main() -> std::io::Result<()> {
             .service(handler::settings::get)
             .service(handler::index::index)
             .service(handler::cities::get)
+            .service(handler::cities_backpacker::get)
             .service(handler::near_by_search::get)
             .service(handler::backpacker::get)
     })
