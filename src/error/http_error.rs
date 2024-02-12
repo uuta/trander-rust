@@ -166,10 +166,25 @@ impl From<ValidationErrors> for HttpError {
 
 impl From<reqwest::Error> for HttpError {
     fn from(error: reqwest::Error) -> HttpError {
-        HttpError {
-            message: None,
-            cause: Some(error.to_string()),
-            error_type: HttpErrorType::NetworkError,
+        if let Some(status) = error.status() {
+            match status.as_u16() {
+                404 => HttpError {
+                    message: Some("Item Not Found".to_string()),
+                    cause: Some(error.to_string()),
+                    error_type: HttpErrorType::NotFoundError,
+                },
+                _ => HttpError {
+                    message: None,
+                    cause: Some(error.to_string()),
+                    error_type: HttpErrorType::NetworkError,
+                },
+            }
+        } else {
+            HttpError {
+                message: None,
+                cause: Some(error.to_string()),
+                error_type: HttpErrorType::NetworkError,
+            }
         }
     }
 }
