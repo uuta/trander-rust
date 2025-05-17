@@ -1,11 +1,9 @@
-use crate::error_log;
 use actix_web::error::ResponseError;
 use actix_web::{http::StatusCode, HttpResponse};
 use r2d2;
 use serde::Serialize;
 use std::env::VarError;
 use std::fmt;
-use tracing::error;
 use validator::ValidationErrors;
 
 #[derive(Debug)]
@@ -127,7 +125,6 @@ impl ResponseError for HttpError {
     }
 
     fn error_response(&self) -> HttpResponse {
-        error_log!(self);
         HttpResponse::build(self.status_code()).json(HttpErrorResponse {
             error: self.message(),
         })

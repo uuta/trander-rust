@@ -89,7 +89,6 @@ where
                     }
                     Ok(res)
                 }
-                // TODO:
                 Err(e) => Err(actix_web::error::ErrorInternalServerError(format!(
                     "Internal Server Error {:}",
                     e

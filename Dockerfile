@@ -1,4 +1,4 @@
-FROM rust:1.73
+FROM rust:1.85
 
 # Install MySQL client
 RUN apt-get update && \

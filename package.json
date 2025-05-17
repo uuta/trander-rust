@@ -1,0 +1,14 @@
+{
+  "name": "trander-rust",
+  "version": "1.0.0",
+  "description": "Trander Rust Project",
+  "scripts": {
+    "docker": "docker-compose up --build",
+    "docker:up:d": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:build": "docker-compose build",
+    "docker:restart": "docker-compose restart",
+    "docker:logs": "docker-compose logs -f"
+  },
+  "private": true
+}
