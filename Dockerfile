@@ -2,7 +2,7 @@ FROM rust:1.91 AS base
 
 # Install MySQL client for Diesel CLI and migrations
 RUN apt-get update && \
-    apt-get install -y default-mysql-client && \
+    apt-get install -y default-mysql-client curl && \
     rm -rf /var/lib/apt/lists/*
 
 # INFO: it makes faster cargo build
@@ -32,7 +32,7 @@ FROM debian:bookworm-slim AS runtime
 
 # Install runtime dependencies for the application
 RUN apt-get update && \
-    apt-get install -y default-mysql-client && \
+    apt-get install -y default-mysql-client curl && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/src/trander-rust

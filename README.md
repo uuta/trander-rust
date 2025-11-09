@@ -14,6 +14,11 @@ $ docker-compose exec app ./run_migration.sh test
 2. Keep `DB_ROOT_PASS` different from `DB_PASS`; `docker-compose.yml` now wires the root password from its own variable so the database superuser does not share the application credentials.
 3. If you already have a local `.env`, add a new `DB_ROOT_PASS=...` entry (any value that differs from `DB_PASS` is fine for dev) before running `docker compose up` again.
 
+### Container health checks
+
+- `docker-compose.yml` now includes health checks. Ensure the app exposes `GET /health` that returns HTTP 200 when ready; the check polls `http://localhost:8080/health` every 30 seconds.
+- The MySQL services rely on `mysqladmin ping`, so they will report `starting` until the server accepts connections.
+
 ## Production Image Usage
 
 The Dockerfile uses multi-stage builds. The `dev` stage keeps the Rust toolchain for
