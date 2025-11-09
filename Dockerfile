@@ -14,9 +14,12 @@ WORKDIR /usr/src/trander-rust
 FROM base AS dev
 
 # Tooling needed for local development workflows
+# Cached Docker layer keeps this install from running on every `docker compose build`.
+# If build times become problematic, revisit by introducing a prebuilt dev-tools base image.
 RUN cargo install cargo-watch cargo-edit diesel_cli
 
 # Copy the rest of the application code (will be overridden by docker volume mounts in dev)
+# We keep this for headless builds (CI, Codespaces) where bind mounts are unavailable.
 COPY . .
 
 FROM base AS builder
