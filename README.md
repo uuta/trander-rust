@@ -8,6 +8,12 @@ $ docker-compose exec app ./run_migration.sh dev
 $ docker-compose exec app ./run_migration.sh test
 ```
 
+## Environment configuration
+
+1. Copy `.env.example` to `.env` and fill in secrets for `DB_PASS`, `DB_ROOT_PASS`, and the API keys.
+2. Keep `DB_ROOT_PASS` different from `DB_PASS`; `docker-compose.yml` now wires the root password from its own variable so the database superuser does not share the application credentials.
+3. If you already have a local `.env`, add a new `DB_ROOT_PASS=...` entry (any value that differs from `DB_PASS` is fine for dev) before running `docker compose up` again.
+
 ## Production Image Usage
 
 The Dockerfile uses multi-stage builds. The `dev` stage keeps the Rust toolchain for

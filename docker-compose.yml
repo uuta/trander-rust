@@ -18,7 +18,7 @@ services:
       - MYSQL_DATABASE=${DB_NAME}
       - MYSQL_USER=${DB_USER}
       - MYSQL_PASSWORD=${DB_PASS}
-      - MYSQL_ROOT_PASSWORD=${DB_PASS}
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASS}
       - TZ=${TZ}
     ports:
       - "3001:3306"
@@ -33,7 +33,7 @@ services:
       - MYSQL_DATABASE=${TEST_DB_NAME}
       - MYSQL_USER=${DB_USER}
       - MYSQL_PASSWORD=${DB_PASS}
-      - MYSQL_ROOT_PASSWORD=${DB_PASS}
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASS}
       - TZ=${TZ}
     ports:
       - "3002:3306"
