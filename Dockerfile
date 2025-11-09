@@ -35,8 +35,12 @@ RUN apt-get update && \
 WORKDIR /usr/src/trander-rust
 
 # Copy application artifacts from the builder stage
-COPY --from=builder /usr/src/trander-rust .
+# Only bring the runtime artefacts we actually need
+COPY --from=builder /usr/src/trander-rust/migrations ./migrations
 COPY --from=builder /tmp/target/release/trander_rust /usr/local/bin/trander-rust
+
+# Fail the build if we accidentally ship source files in the runtime image
+RUN test ! -d /usr/src/trander-rust/src
 
 # Expose the port that the application will run on
 EXPOSE 8080
